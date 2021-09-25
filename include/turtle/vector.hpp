@@ -1,16 +1,27 @@
 #pragma once
 
-#include "fmt/format.h"
+#include "util/array.hpp"
+#include "util/zip_transform_iterator.hpp"
 
+#include <algorithm>
 #include <array>
-#include <iterator>
-#include <type_traits>
+#include <concepts>
+#include <fmt/format.h>
+#include <ranges>
+#include <utility>
 
 namespace turtle {
 
 template <class T>
 class vector {
-    using data_type = std::array<T, 3>;
+    static constexpr auto dimension = 3;
+    using data_type = std::array<T, dimension>;
+
+    template <class Iterable>
+    static constexpr auto make_vector(Iterable it) -> vector
+    {
+        return util::make_arraylike<vector, dimension>(it);
+    }
 
     data_type data_{};
 
@@ -22,8 +33,9 @@ class vector {
 
     constexpr vector() = default;
 
-    template <class U, class = std::enable_if_t<std::is_same_v<U, T>>>
-    constexpr vector(U x, U y, U z) : data_{std::move(x), std::move(y), std::move(z)}
+    template <class U>
+    constexpr vector(U x, U y, U z) requires std::same_as<U, T>
+        : data_{std::move(x), std::move(y), std::move(z)}
     {}
 
     constexpr auto x() & -> T& { return std::get<0>(data_); }
@@ -46,7 +58,45 @@ class vector {
     constexpr auto end() const& -> const_iterator { return data_.end(); }
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
 
+    template <class UnaryOp>
+    static constexpr auto apply_elementwise(const vector& v, UnaryOp uop) -> vector
+    {
+        return make_vector(v | std::views::transform(std::move(uop)));
+    }
+    template <class BinOp>
+    static constexpr auto apply_elementwise(const vector& v, const vector& u, BinOp bop) -> vector
+    {
+        return make_vector(util::zip_transform_iterator{v.cbegin(), u.cbegin(), std::move(bop)});
+    }
+
     friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
+
+    friend constexpr auto operator+(const vector& v, const vector& u) -> vector
+    {
+        return apply_elementwise(v, u, std::plus<>{});
+    }
+    friend constexpr auto operator-(const vector& v, const vector& u) -> vector
+    {
+        return apply_elementwise(v, u, std::minus<>{});
+    }
+
+    friend constexpr auto operator-(const vector& v) -> vector
+    {
+        return apply_elementwise(v, std::negate<>{});
+    }
+
+    friend constexpr auto operator*(T a, const vector& v) -> vector
+    {
+        return apply_elementwise(v, [a = std::move(a)](const auto& x) { return a * x; });
+    }
+    friend constexpr auto operator*(const vector& v, T a) -> vector
+    {
+        return apply_elementwise(v, [a = std::move(a)](const auto& x) { return x * a; });
+    }
+    friend constexpr auto operator/(const vector& v, T a) -> vector
+    {
+        return apply_elementwise(v, [a = std::move(a)](const auto& x) { return x / a; });
+    }
 };
 
 template <class T>

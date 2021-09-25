@@ -6,6 +6,8 @@ cc_library(
     name = "turtle",
     hdrs = [
         "include/turtle/turtle.hpp",
+        "include/turtle/util/array.hpp",
+        "include/turtle/util/zip_transform_iterator.hpp",
         "include/turtle/vector.hpp",
     ],
     copts = PROJECT_DEFAULT_COPTS,

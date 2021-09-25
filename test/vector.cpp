@@ -85,4 +85,51 @@ auto main() -> int
         constexpr auto w = turtle::vector{1, 0, 0};
         expect(u != w);
     };
+
+    test("Add") = [] {
+        constexpr auto v = turtle::vector<int>{1, 2, 3};
+        constexpr auto u = turtle::vector<int>{3, 2, 1};
+
+        constexpr auto w = turtle::vector<int>{4, 4, 4};
+        expect(w == (v + u));
+    };
+
+    test("Subtract") = [] {
+        constexpr auto v = turtle::vector<int>{1, 2, 3};
+        constexpr auto u = turtle::vector<int>{3, 2, 1};
+
+        constexpr auto w = turtle::vector<int>{-2, 0, 2};
+        expect(w == (v - u));
+    };
+
+    test("LeftMul") = [] {
+        constexpr auto a = 2;
+        constexpr auto v = turtle::vector<int>{1, 2, 3};
+
+        constexpr auto u = turtle::vector<int>{2, 4, 6};
+        expect(u == a * v);
+    };
+
+    test("RightMul") = [] {
+        constexpr auto a = 2;
+        constexpr auto v = turtle::vector<int>{1, 2, 3};
+
+        constexpr auto u = turtle::vector<int>{2, 4, 6};
+        expect(u == v * a);
+    };
+
+    test("RightDiv") = [] {
+        constexpr auto a = 2;
+        constexpr auto v = turtle::vector<int>{1, 2, 3};
+
+        constexpr auto u = turtle::vector<int>{0, 1, 1};
+        expect(u == v / a);
+    };
+
+    test("Negate") = [] {
+        constexpr auto v = turtle::vector<int>{1, 2, 3};
+
+        constexpr auto u = turtle::vector<int>{-1, -2, -3};
+        expect(u == -v);
+    };
 }
