@@ -132,4 +132,36 @@ auto main() -> int
         constexpr auto u = turtle::vector<int>{-1, -2, -3};
         expect(u == -v);
     };
+
+    test("CompoundAdd") = [] {
+        auto v = turtle::vector<int>{1, 2, 3};
+        v += turtle::vector<int>{3, 2, 1};
+
+        constexpr auto u = turtle::vector<int>{4, 4, 4};
+        expect(u == v);
+    };
+
+    test("CompoundSubtract") = [] {
+        auto v = turtle::vector<int>{1, 2, 3};
+        v -= turtle::vector<int>{3, 2, 1};
+
+        constexpr auto u = turtle::vector<int>{-2, 0, 2};
+        expect(u == v);
+    };
+
+    test("CompoundMul") = [] {
+        auto v = turtle::vector<int>{1, 2, 3};
+        v *= 2;
+
+        constexpr auto u = turtle::vector<int>{2, 4, 6};
+        expect(u == v);
+    };
+
+    test("CompoundDiv") = [] {
+        auto v = turtle::vector<int>{1, 2, 3};
+        v /= 2;
+
+        constexpr auto u = turtle::vector<int>{0, 1, 1};
+        expect(u == v);
+    };
 }

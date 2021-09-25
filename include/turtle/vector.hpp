@@ -69,7 +69,26 @@ class vector {
         return make_vector(util::zip_transform_iterator{v.cbegin(), u.cbegin(), std::move(bop)});
     }
 
-    friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
+    constexpr auto operator+=(const vector& u) -> vector&
+    {
+        std::ranges::transform(*this, u, begin(), std::plus<>{});
+        return *this;
+    }
+    constexpr auto operator-=(const vector& u) -> vector&
+    {
+        std::ranges::transform(*this, u, begin(), std::minus<>{});
+        return *this;
+    }
+    constexpr auto operator*=(T a) -> vector&
+    {
+        std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x *= a; });
+        return *this;
+    }
+    constexpr auto operator/=(T a) -> vector&
+    {
+        std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x /= a; });
+        return *this;
+    }
 
     friend constexpr auto operator+(const vector& v, const vector& u) -> vector
     {
@@ -97,6 +116,8 @@ class vector {
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) { return x / a; });
     }
+
+    friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
 };
 
 template <class T>
