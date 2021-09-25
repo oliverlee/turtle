@@ -9,5 +9,10 @@ auto main() -> int
 
     fmt::print("v: {:.2f}\n", v);
 
+    constexpr auto n = turtle::frame<"N">{};
+
+    fmt::print("frame: {}\n", n);
+    fmt::print("frame.name: {}\n", n.name);
+
     return 0;
 }
