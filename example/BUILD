@@ -5,5 +5,8 @@ cc_binary(
   name = "example",
   srcs = ["example.cpp"],
   copts = PROJECT_DEFAULT_COPTS,
-  deps = ["//:turtle"],
+  deps = [
+    "//:turtle",
+    "@fmt//:fmt",
+  ],
 )

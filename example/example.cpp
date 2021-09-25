@@ -1,9 +1,8 @@
+#include "fmt/core.h"
 #include "turtle/turtle.hpp"
-
-#include <iostream>
 
 int main()
 {
-    std::cout << "hello! - 🐢" << '\n';
+    fmt::print("hello! - 🐢 \n");
     return 0;
 }
