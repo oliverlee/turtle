@@ -32,3 +32,10 @@ new_git_repository(
     remote = "https://github.com/fmtlib/fmt/",
     build_file = "@fmt_workaround//:support/bazel/BUILD.bazel"
 )
+
+new_git_repository(
+    name = "ut",
+    commit = "c3ed7a21a18a4de3fc807451ae86c9f51e706a11",
+    remote = "https://github.com/boost-ext/ut/",
+    build_file = "@//:external/ut.BUILD"
+)
