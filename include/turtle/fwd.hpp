@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 
 namespace turtle {
 
@@ -11,5 +12,19 @@ struct Descriptor;
 
 template <detail::Descriptor Name>
 struct frame;
+
+template <class, class = void>
+struct is_frame : std::false_type {};
+template <detail::Descriptor Name>
+struct is_frame<frame<Name>> : std::true_type {};
+template <class T>
+inline constexpr bool is_frame_v = is_frame<T>::value;
+
+namespace con {
+
+template <class T>
+concept reference_frame = is_frame_v<T>;
+
+}
 
 }  // namespace turtle

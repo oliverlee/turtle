@@ -1,7 +1,5 @@
 #pragma once
 
-#include "util/array.hpp"
-
 #include <algorithm>
 #include <array>
 #include <fmt/format.h>

@@ -14,7 +14,7 @@
 
 namespace turtle {
 
-template <class Frame, class T>
+template <con::reference_frame Frame, class T>
 class vector {
     static constexpr auto dimension = 3;
     using data_type = std::array<T, dimension>;
@@ -124,7 +124,7 @@ class vector {
     friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
 };
 
-template <class Frame, class T>
+template <con::reference_frame Frame, class T>
 constexpr auto make_vector(T x, T y, T z) -> vector<Frame, T>
 {
     return {x, y, z};
