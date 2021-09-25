@@ -7,6 +7,6 @@ cc_binary(
   copts = PROJECT_DEFAULT_COPTS,
   deps = [
     "//:turtle",
-    "@fmt//:fmt",
+    "@fmt",
   ],
 )
