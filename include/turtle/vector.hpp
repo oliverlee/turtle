@@ -45,6 +45,8 @@ class vector {
     constexpr auto end() & -> iterator { return data_.end(); }
     constexpr auto end() const& -> const_iterator { return data_.end(); }
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
+
+    friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
 };
 
 template <class T>

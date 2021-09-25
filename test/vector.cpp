@@ -3,6 +3,33 @@
 #include "boost/ut.hpp"
 
 #include <algorithm>
+#include <functional>
+#include <type_traits>
+
+void test_disabled_constructor()
+{
+    using V = turtle::vector<int>;
+
+    static_assert(std::is_constructible_v<V>);
+    static_assert(std::is_constructible_v<V, int, int, int>);
+
+    static_assert(not std::is_constructible_v<V, int>);
+    static_assert(not std::is_constructible_v<V, int, int>);
+    static_assert(not std::is_constructible_v<V, int, int, unsigned>);
+    static_assert(not std::is_constructible_v<V, int, bool, int>);
+    static_assert(not std::is_constructible_v<V, short, int, int>);
+    static_assert(not std::is_constructible_v<V, short, short, short>);
+};
+
+void test_disabled_comparisons()
+{
+    using V = turtle::vector<int>;
+
+    static_assert(not std::is_invocable_v<std::less<>, V, V>);
+    static_assert(not std::is_invocable_v<std::less_equal<>, V, V>);
+    static_assert(not std::is_invocable_v<std::greater<>, V, V>);
+    static_assert(not std::is_invocable_v<std::greater_equal<>, V, V>);
+};
 
 auto main() -> int
 {
@@ -47,5 +74,15 @@ auto main() -> int
         std::ranges::for_each(v, [](auto& x) { ++x; });
 
         expect(3_l == std::ranges::count(v, 1));
+    };
+
+    test("EqualityComparable") = [] {
+        constexpr auto v = turtle::vector<int>{};
+        constexpr auto u = turtle::vector<int>{};
+
+        expect(u == v);
+
+        constexpr auto w = turtle::vector{1, 0, 0};
+        expect(u != w);
     };
 }
