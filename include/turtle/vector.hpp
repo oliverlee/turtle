@@ -1,18 +1,20 @@
 #pragma once
 
+#include "fwd.hpp"
 #include "util/array.hpp"
 #include "util/zip_transform_iterator.hpp"
 
 #include <algorithm>
 #include <array>
 #include <concepts>
+#include <cstddef>
 #include <fmt/format.h>
 #include <ranges>
 #include <utility>
 
 namespace turtle {
 
-template <class T>
+template <class Frame, class T>
 class vector {
     static constexpr auto dimension = 3;
     using data_type = std::array<T, dimension>;
@@ -26,6 +28,8 @@ class vector {
     data_type data_{};
 
   public:
+    using reference_frame = Frame;
+
     using value_type = T;
 
     using iterator = typename data_type::iterator;
@@ -120,15 +124,18 @@ class vector {
     friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
 };
 
-template <class T>
-vector(T x, T y, T z) -> vector<T>;
+template <class Frame, class T>
+constexpr auto make_vector(T x, T y, T z) -> vector<Frame, T>
+{
+    return {x, y, z};
+}
 
 }  // namespace turtle
 
-template <class T>
-struct fmt::formatter<turtle::vector<T>> : fmt::formatter<T> {
+template <class Frame, class T>
+struct fmt::formatter<turtle::vector<Frame, T>> : fmt::formatter<T> {
     template <class FormatContext>
-    auto format(const turtle::vector<T>& v, FormatContext& ctx)
+    auto format(const turtle::vector<Frame, T>& v, FormatContext& ctx)
     {
         auto&& out = ctx.out();
 
