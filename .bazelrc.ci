@@ -1,0 +1,20 @@
+# This is from Bazel's former travis setup, to avoid blowing up the RAM usage.
+startup --host_jvm_args=-Xmx2500m
+
+build --spawn_strategy=sandboxed,local
+build --show_timestamps
+build --announce_rc
+build --color=yes
+build --disk_cache='~/.cache/bazel/'
+build --show_task_finish
+build --terminal_columns=120
+
+build:gcc --action_env=CC=gcc
+build:clang --action_env=CC=clang
+
+build:asan --action_env=CC=gcc
+build:tsan --action_env=CC=gcc
+build:ubsan --action_env=CC=gcc
+
+test --test_output=all
+test --test_verbose_timeout_warnings

@@ -1,0 +1,8 @@
+InheritParentConfig: true
+Checks: >
+    # this looks weird for main,
+    -modernize-use-trailing-return-type,
+
+    # propgate errors to the top,
+    -bugprone-exception-escape,
+

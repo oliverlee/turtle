@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BAZEL_VERSION: "4.1.0"
+  LLVM_VERSION: 13
+  GTEST_COLOR: 1
+  FAKE_CLOCK_REPEAT_COUNT: 100
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        config: [gcc, clang, asan, tsan, ubsan]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Print compiler info
+      run: |
+        if [[ "${{ matrix.config }}" == "clang"  ]]; then
+          clang --version
+        else
+          gcc --version
+        fi
+
+    - id: cache-bazel-install
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/bin/bazel*
+          ~/.bazel
+        key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}
+
+    - id: cache-bazel-out
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/bazel
+        key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-
+
+    - name: Setup Bazel
+      run: |
+        if [[ "${{ steps.cache-bazel-install.outputs.cache-hit }}" != "true" ]]; then
+          OS=linux
+          URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
+
+          wget -O install.sh "${URL}"
+          chmod +x install.sh
+          ./install.sh --user
+          rm -f install.sh
+        fi
+
+        cat .bazelrc.ci >> .bazelrc
+
+    - name: Build and Test
+      run: |
+        bazel build --config=${{ matrix.config }} //...
+        bazel test --config=${{ matrix.config }} //...
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install clang-format ${{ env.LLVM_VERSION }}
+      run: |
+        sudo .github/workflows/llvm.sh ${LLVM_VERSION}
+        sudo apt-get install -y clang-format-${LLVM_VERSION}
+        clang-format-${LLVM_VERSION} --version
+
+    - name: Run clang-format
+      run: |
+        ./run_format.sh clang-format-${LLVM_VERSION}
+        git --no-pager diff
+        git update-index --really-refresh
+        git --no-pager diff
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install clang-tidy ${{ env.LLVM_VERSION }}
+        run: |
+          sudo .github/workflows/llvm.sh ${LLVM_VERSION}
+          sudo apt-get install -y clang-tidy-${LLVM_VERSION}
+
+      - name: Link clang-tidy to clang-tidy-${{ env.LLVM_VERSION }}
+        run: |
+          sudo ln -s $(which clang-tidy-13) /usr/bin/clang-tidy
+          clang-tidy --version
+
+      - id: cache-bazel-install
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/bin/bazel*
+            ~/.bazel
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}
+
+      - id: cache-bazel-out
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/bazel
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.compiler }}-${{ github.sha }}
+          restore-keys: |
+            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.compiler }}-
+
+      - name: Setup Bazel
+        run: |
+          if [[ "${{ steps.cache-bazel-install.outputs.cache-hit }}" != 'true' ]]; then
+            OS=linux
+            URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
+
+            wget -O install.sh "${URL}"
+            chmod +x install.sh
+            ./install.sh --user
+            rm -f install.sh
+          fi
+
+          cat .bazelrc.ci >> .bazelrc
+
+      - name: Lint
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          bazel build --config=clang-tidy //...
