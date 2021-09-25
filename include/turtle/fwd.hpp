@@ -10,13 +10,13 @@ template <std::size_t N>
 struct Descriptor;
 }
 
-template <detail::Descriptor Name>
+template <detail::Descriptor Name, class T>
 struct frame;
 
 template <class, class = void>
 struct is_frame : std::false_type {};
-template <detail::Descriptor Name>
-struct is_frame<frame<Name>> : std::true_type {};
+template <detail::Descriptor Name, class T>
+struct is_frame<frame<Name, T>> : std::true_type {};
 template <class T>
 inline constexpr bool is_frame_v = is_frame<T>::value;
 

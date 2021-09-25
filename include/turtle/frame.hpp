@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vector.hpp"
+
 #include <algorithm>
 #include <array>
 #include <fmt/format.h>
@@ -18,9 +20,16 @@ struct Descriptor {
 
 }  // namespace detail
 
-template <detail::Descriptor Name>
+template <detail::Descriptor Name, class T = double>
 struct frame {
+    using scalar_type = T;
+    using vector = turtle::vector<frame>;
+
     static constexpr auto name = std::string_view{Name.name.data()};
+
+    static constexpr vector x{T{1}, T{}, T{}};
+    static constexpr vector y{T{}, T{1}, T{}};
+    static constexpr vector z{T{}, T{}, T{1}};
 };
 
 }  // namespace turtle

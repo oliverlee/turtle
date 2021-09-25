@@ -6,12 +6,14 @@ auto main() -> int
     fmt::print("hello! - 🐢 \n");
 
     using N = turtle::frame<"N">;
+    constexpr auto n = N{};
+    fmt::print("frame: {}\n", n);
 
-    fmt::print("frame: {}\n", N{});
+    constexpr auto v = N::vector{1., 2., 3.};
+    fmt::print("v: {}\n", v);
 
-    constexpr auto v = turtle::make_vector<N>(1., 2., 3.);
-
-    fmt::print("v: {:.2f}\n", v);
+    constexpr auto u = 1 * n.x + 2 * n.y + 3 * n.z;
+    fmt::print("u: {:.2f}\n", u);
 
     return 0;
 }
