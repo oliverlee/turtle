@@ -22,3 +22,14 @@ cc_test(
       "@ut",
   ],
 )
+
+cc_test(
+  name = "vector_ops",
+  size = "small",
+  srcs = ["vector_ops.cpp"],
+  copts = PROJECT_DEFAULT_COPTS,
+  deps = [
+      "//:turtle",
+      "@ut",
+  ],
+)

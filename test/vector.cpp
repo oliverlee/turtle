@@ -44,6 +44,15 @@ void test_disabled_cross_frame_operation()
     static_assert(not std::is_invocable_v<std::plus<>, decltype(v), decltype(u)>);
 };
 
+void test_vector_trait()
+{
+    static_assert(turtle::is_vector_v<N::vector>);
+    static_assert(turtle::is_vector_v<turtle::vector<N>>);
+
+    static_assert(not turtle::is_vector_v<int>);
+    static_assert(not turtle::is_vector_v<N>);
+}
+
 auto main() -> int
 {
     using namespace boost::ut;

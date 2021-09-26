@@ -27,4 +27,21 @@ concept reference_frame = is_frame_v<T>;
 
 }
 
+template <con::reference_frame Frame>
+class vector;
+
+template <class, class = void>
+struct is_vector : std::false_type {};
+template <class Frame>
+struct is_vector<vector<Frame>, std::enable_if_t<is_frame_v<Frame>>> : std::true_type {};
+template <class T>
+inline constexpr bool is_vector_v = is_vector<T>::value;
+
+namespace con {
+
+template <class T>
+concept reference_frame_vector = is_vector_v<T>;
+
+}
+
 }  // namespace turtle

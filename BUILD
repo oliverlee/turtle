@@ -11,6 +11,7 @@ cc_library(
         "include/turtle/util/array.hpp",
         "include/turtle/util/zip_transform_iterator.hpp",
         "include/turtle/vector.hpp",
+        "include/turtle/vector_ops.hpp",
     ],
     copts = PROJECT_DEFAULT_COPTS,
     strip_include_prefix = "include",
