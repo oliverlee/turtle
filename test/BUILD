@@ -13,6 +13,17 @@ cc_test(
 )
 
 cc_test(
+  name = "quaternion",
+  size = "small",
+  srcs = ["quaternion.cpp"],
+  copts = PROJECT_DEFAULT_COPTS,
+  deps = [
+      "//:turtle",
+      "@ut",
+  ],
+)
+
+cc_test(
   name = "vector",
   size = "small",
   srcs = ["vector.cpp"],

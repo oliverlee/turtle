@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fwd.hpp"
+#include "quaternion.hpp"
 #include "util/array.hpp"
 #include "util/zip_transform_iterator.hpp"
 

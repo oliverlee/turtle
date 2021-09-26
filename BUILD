@@ -7,6 +7,7 @@ cc_library(
     hdrs = [
         "include/turtle/frame.hpp",
         "include/turtle/fwd.hpp",
+        "include/turtle/quaternion.hpp",
         "include/turtle/turtle.hpp",
         "include/turtle/util/array.hpp",
         "include/turtle/util/zip_transform_iterator.hpp",
