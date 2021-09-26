@@ -31,6 +31,7 @@ cc_test(
   copts = PROJECT_DEFAULT_COPTS,
   deps = [
       "//:turtle",
+      ":util",
       "@ut",
   ],
 )

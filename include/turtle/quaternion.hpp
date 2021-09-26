@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util/ulp_diff.hpp"
 #include "vector.hpp"
 #include "vector_ops.hpp"
 
@@ -10,6 +11,8 @@
 #include <utility>
 
 namespace turtle {
+
+inline constexpr std::size_t MAX_NORMALIZED_ULP_DIFF{4};
 
 template <class T = double>
 class quaternion {
@@ -37,7 +40,9 @@ class quaternion {
                      axis.y() * std::sin(angle / T{2}),
                      axis.z() * std::sin(angle / T{2})}
     {
-        assert(T{1} == dot_product(axis, axis));
+        if (angle != T{}) {
+            assert(MAX_NORMALIZED_ULP_DIFF >= util::ulp_diff(T{1}, dot_product(axis, axis)));
+        }
     }
 
     template <con::reference_frame_vector Vector>
@@ -93,7 +98,8 @@ constexpr auto rotate(const vector<Frame>& v, const quaternion<typename Frame::s
     -> vector<Frame>
 {
     using T = typename Frame::scalar_type;
-    assert(T{1} == std::inner_product(qr.cbegin(), qr.cend(), qr.cbegin(), T{}));
+    assert(MAX_NORMALIZED_ULP_DIFF >=
+           util::ulp_diff(T{1}, std::inner_product(qr.cbegin(), qr.cend(), qr.cbegin(), T{})));
 
     // https://en.wikipedia.org/wiki/Rotation_(mathematics)#Quaternions
     auto const qo = qr * quaternion{v} * qr.conjugate();
