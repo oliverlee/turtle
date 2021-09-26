@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <string_view>
 #include <type_traits>
 
 using N = turtle::frame<"N", int>;
@@ -57,7 +58,7 @@ auto main() -> int
 {
     using namespace boost::ut;
 
-    test("DefaultConstruct") = [] {
+    test("vector is default constructible") = [] {
         constexpr auto v = turtle::vector<N>{};
 
         expect(0_i == v.x());
@@ -65,7 +66,7 @@ auto main() -> int
         expect(0_i == v.z());
     };
 
-    test("ConstructFromValues") = [] {
+    test("vector constructible from x, y, z values") = [] {
         constexpr auto v = N::vector{1, 2, 3};
 
         expect(1_i == v.x());
@@ -73,7 +74,7 @@ auto main() -> int
         expect(3_i == v.z());
     };
 
-    test("SetValues") = [] {
+    test("vector components are assignable") = [] {
         auto v = turtle::vector<N>{};
 
         v.x() = 1;
@@ -85,113 +86,114 @@ auto main() -> int
         expect(3_i == v.z());
     };
 
-    test("IsConstRange") = [] {
+    test("vector is a const range") = [] {
         constexpr auto v = turtle::vector<N>{};
 
         expect(3_l == std::ranges::count(v, 0));
     };
 
-    test("IsMutableRange") = [] {
+    test("vector is a mutable range") = [] {
         auto v = turtle::vector<N>{};
         std::ranges::for_each(v, [](auto& x) { ++x; });
 
         expect(3_l == std::ranges::count(v, 1));
     };
 
-    test("EqualityComparable") = [] {
+    test("vector is equality comparable") = [] {
         constexpr auto v = turtle::vector<N>{};
         constexpr auto u = turtle::vector<N>{};
 
-        expect(u == v);
+        expect(eq(u, v));
 
         constexpr auto w = turtle::vector<N>{1, 0, 0};
-        expect(u != w);
+        expect(neq(u, w));
     };
 
-    test("Add") = [] {
+    test("vector addition") = [] {
         constexpr auto v = turtle::vector<N>{1, 2, 3};
         constexpr auto u = turtle::vector<N>{3, 2, 1};
 
         constexpr auto w = turtle::vector<N>{4, 4, 4};
-        expect(w == (v + u));
+        expect(eq(w, (v + u)));
     };
 
-    test("Subtract") = [] {
+    test("vector subtraction") = [] {
         constexpr auto v = turtle::vector<N>{1, 2, 3};
         constexpr auto u = turtle::vector<N>{3, 2, 1};
 
         constexpr auto w = turtle::vector<N>{-2, 0, 2};
-        expect(w == (v - u));
+        expect(eq(w, (v - u)));
     };
 
-    test("LeftMul") = [] {
+    test("left multiplication by a scalar") = [] {
         constexpr auto a = 2;
         constexpr auto v = turtle::vector<N>{1, 2, 3};
 
         constexpr auto u = turtle::vector<N>{2, 4, 6};
-        expect(u == a * v);
+        expect(eq(u, a * v));
     };
 
-    test("RightMul") = [] {
+    test("right multiplication by a scalar") = [] {
         constexpr auto a = 2;
         constexpr auto v = turtle::vector<N>{1, 2, 3};
 
         constexpr auto u = turtle::vector<N>{2, 4, 6};
-        expect(u == v * a);
+        expect(eq(u, v * a));
     };
 
-    test("RightDiv") = [] {
+    test("right division by a scalar") = [] {
         constexpr auto a = 2;
         constexpr auto v = turtle::vector<N>{1, 2, 3};
 
         constexpr auto u = turtle::vector<N>{0, 1, 1};
-        expect(u == v / a);
+        expect(eq(u, v / a));
     };
 
-    test("Negate") = [] {
+    test("vector negation") = [] {
         constexpr auto v = turtle::vector<N>{1, 2, 3};
 
         constexpr auto u = turtle::vector<N>{-1, -2, -3};
-        expect(u == -v);
+        expect(eq(u, -v));
     };
 
-    test("CompoundAdd") = [] {
+    test("vector add-assign") = [] {
         auto v = turtle::vector<N>{1, 2, 3};
         v += turtle::vector<N>{3, 2, 1};
 
         constexpr auto u = turtle::vector<N>{4, 4, 4};
-        expect(u == v);
+        expect(eq(u, v));
     };
 
-    test("CompoundSubtract") = [] {
+    test("vector subtract-assign") = [] {
         auto v = turtle::vector<N>{1, 2, 3};
         v -= turtle::vector<N>{3, 2, 1};
 
         constexpr auto u = turtle::vector<N>{-2, 0, 2};
-        expect(u == v);
+        expect(eq(u, v));
     };
 
-    test("CompoundMul") = [] {
+    test("scalar multiply-assign") = [] {
         auto v = turtle::vector<N>{1, 2, 3};
         v *= 2;
 
         constexpr auto u = turtle::vector<N>{2, 4, 6};
-        expect(u == v);
+        expect(eq(u, v));
     };
 
-    test("CompoundDiv") = [] {
+    test("scalar divide-assign") = [] {
         auto v = turtle::vector<N>{1, 2, 3};
         v /= 2;
 
         constexpr auto u = turtle::vector<N>{0, 1, 1};
-        expect(u == v);
+        expect(eq(u, v));
     };
 
-    test("Format") = [] {
+    test("vector string format") = [] {
+        using namespace std::literals::string_view_literals;
         using A = turtle::frame<"A">;
         constexpr auto v = A::vector{1., 2., 3.};
 
-        expect("[A] (1, 2, 3)" == fmt::format("{}", v));
-        expect("[A] (1.00, 2.00, 3.00)" == fmt::format("{:.2f}", v));
+        expect(eq("[A] (1, 2, 3)"sv, fmt::format("{}", v)));
+        expect(eq("[A] (1.00, 2.00, 3.00)"sv, fmt::format("{:.2f}", v)));
     };
 }

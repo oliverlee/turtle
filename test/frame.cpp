@@ -2,6 +2,7 @@
 
 #include "boost/ut.hpp"
 
+#include <string_view>
 #include <type_traits>
 
 void test_frame_trait()
@@ -23,42 +24,40 @@ auto main() -> int
 {
     using namespace boost::ut;
 
-    test("Construct") = [] {
-        constexpr auto n = turtle::frame<"N">{};
+    test("frame is default constructible") = [] {
+        constexpr auto n = turtle::frame<"">{};
         (void)n;
     };
 
-    test("Name") = [] {
+    test("frame has a name") = [] {
+        using namespace std::literals::string_view_literals;
         constexpr auto n = turtle::frame<"N">{};
 
-        expect("N" == n.name);
+        expect(eq("N"sv, n.name));
     };
 
-    test("BasisVectors") = [] {
+    test("frame has associated vector type") = [] {
+        using N = turtle::frame<"N">;
+
+        constexpr auto v = N::vector{1., 2., 3.};
+        (void)v;
+    };
+
+    test("frame basis vectors used via frame type") = [] {
         using N = turtle::frame<"N">;
 
         constexpr auto v = N::vector{1., 2., 3.};
         constexpr auto u = 1 * N::x + 2 * N::y + 3 * N::z;
 
-        expect(u == v);
+        expect(eq(u, v));
     };
 
-    test("BasisVectorsWithFrameValue") = [] {
+    test("frame basis vectors used via frame value") = [] {
         constexpr auto n = turtle::frame<"N">{};
 
         constexpr auto v = std::remove_cvref_t<decltype(n)>::vector{1., 2., 3.};
         constexpr auto u = 1 * n.x + 2 * n.y + 3 * n.z;
 
-        expect(u == v);
-    };
-
-    test("BasisVectorsWithFrameAssociatedVectorTypeAlias") = [] {
-        using N = turtle::frame<"N">;
-        constexpr auto n = N{};
-
-        constexpr auto v = N::vector{1., 2., 3.};
-        constexpr auto u = 1 * n.x + 2 * n.y + 3 * n.z;
-
-        expect(u == v);
+        expect(eq(u, v));
     };
 }
