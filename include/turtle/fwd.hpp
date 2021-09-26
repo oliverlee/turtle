@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 #include <type_traits>
 
@@ -43,5 +44,12 @@ template <class T>
 concept reference_frame_vector = is_vector_v<T>;
 
 }
+
+template <class T>
+class quaternion;
+
+template <con::reference_frame From, con::reference_frame To>
+requires std::same_as<typename From::scalar_type, typename To::scalar_type>
+class orientation;
 
 }  // namespace turtle

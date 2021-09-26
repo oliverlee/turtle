@@ -1,10 +1,13 @@
 #include "turtle/vector.hpp"
 
 #include "boost/ut.hpp"
+#include "test/util/within.hpp"
 #include "turtle/frame.hpp"
+#include "turtle/orientation.hpp"
 
 #include <algorithm>
 #include <functional>
+#include <numbers>
 #include <string_view>
 #include <type_traits>
 
@@ -57,6 +60,7 @@ void test_vector_trait()
 auto main() -> int
 {
     using namespace boost::ut;
+    using turtle::test::within;
 
     test("vector is default constructible") = [] {
         constexpr auto v = turtle::vector<N>{};
@@ -195,5 +199,17 @@ auto main() -> int
 
         expect(eq("[A] (1, 2, 3)"sv, fmt::format("{}", v)));
         expect(eq("[A] (1.00, 2.00, 3.00)"sv, fmt::format("{:.2f}", v)));
+    };
+
+    test("vector expressed in different frame") = [] {
+        using std::numbers::pi;
+
+        using M = turtle::frame<"M">;
+        using A = turtle::frame<"A">;
+
+        constexpr auto v = M::vector{1., 2., 3.};
+        const auto ori = turtle::orientation<M, A>{pi / 2., M::vector{1., 0., 0.}};
+
+        expect(within<1e-9>(A::vector{1., 3., -2.}, v.in<A>(ori)));
     };
 }

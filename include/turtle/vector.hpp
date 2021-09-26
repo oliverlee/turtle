@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fwd.hpp"
-#include "quaternion.hpp"
 #include "util/array.hpp"
 #include "util/zip_transform_iterator.hpp"
 
@@ -63,6 +62,12 @@ class vector {
     constexpr auto end() & -> iterator { return data_.end(); }
     constexpr auto end() const& -> const_iterator { return data_.end(); }
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
+
+    template <con::reference_frame To>
+    auto in(const orientation<Frame, To>& ori) const -> typename To::vector
+    {
+        return ori.rotate(*this);
+    }
 
     template <class UnaryOp>
     static constexpr auto apply_elementwise(const vector& v, UnaryOp uop) -> vector

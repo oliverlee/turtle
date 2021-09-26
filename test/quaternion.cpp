@@ -1,38 +1,19 @@
 #include "turtle/quaternion.hpp"
 
 #include "boost/ut.hpp"
+#include "test/util/within.hpp"
 #include "turtle/frame.hpp"
 #include "turtle/vector.hpp"
 
 #include <cmath>
-#include <concepts>
 #include <numbers>
 
 using N = turtle::frame<"N">;
 
-template <auto Tol, class T, class U>
-requires std::same_as<T, U> && std::same_as<decltype(Tol), T>
-auto within(const T& v, const U& u)
-{
-    using ut_value = boost::ut::detail::value<decltype(Tol)>;
-
-    return boost::ut::eq(ut_value{v, Tol}, u);
-}
-
-template <auto Tol, turtle::con::reference_frame_vector Vector>
-auto within(const Vector& v, const Vector& u)
-{
-    using boost::ut::operator and;
-    using ut_value = boost::ut::detail::value<decltype(Tol)>;
-
-    return boost::ut::eq(ut_value{v.x(), Tol}, u.x()) and
-           boost::ut::eq(ut_value{v.y(), Tol}, u.y()) and
-           boost::ut::eq(ut_value{v.z(), Tol}, u.z());
-}
-
 auto main() -> int
 {
     using namespace boost::ut;
+    using turtle::test::within;
 
     test("quaternion default constructible") = [] {
         constexpr auto q = turtle::quaternion<int>{};

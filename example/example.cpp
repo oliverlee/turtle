@@ -26,5 +26,9 @@ auto main() -> int
 
     fmt::print("u: {}\n", turtle::rotate(u, turtle::quaternion{pi / 2., N::vector{1., 0., 0.}}));
 
+    using A = turtle::frame<"A">;
+    const auto o = turtle::orientation<N, A>{pi / 2., N::vector{1., 0., 0.}};
+    fmt::print("applying orientation\n  {:.2f}\non    {:.2f}\ngives {:.2f}\n", o, v, v.in(o));
+
     return 0;
 }

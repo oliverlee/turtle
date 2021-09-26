@@ -31,11 +31,11 @@ class quaternion {
     {}
 
     template <con::reference_frame_vector Vector>
-    quaternion(T theta, Vector axis)
-        : quaternion{std::cos(theta / T{2}),
-                     axis.x() * std::sin(theta / T{2}),
-                     axis.y() * std::sin(theta / T{2}),
-                     axis.z() * std::sin(theta / T{2})}
+    quaternion(T angle, Vector axis)
+        : quaternion{std::cos(angle / T{2}),
+                     axis.x() * std::sin(angle / T{2}),
+                     axis.y() * std::sin(angle / T{2}),
+                     axis.z() * std::sin(angle / T{2})}
     {
         assert(T{1} == dot_product(axis, axis));
     }
@@ -49,7 +49,7 @@ class quaternion {
 
     friend constexpr auto operator*(const quaternion& q, const quaternion& p) -> quaternion
     {
-        // see: https://en.wikipedia.org/wiki/Quaternion#Hamilton_product
+        // https://en.wikipedia.org/wiki/Quaternion#Hamilton_product
         return {q.w() * p.w() - q.x() * p.x() - q.y() * p.y() - q.z() * p.z(),
                 q.w() * p.x() + q.x() * p.w() + q.y() * p.z() - q.z() * p.y(),
                 q.w() * p.y() + q.y() * p.w() - q.x() * p.z() + q.z() * p.x(),
@@ -95,7 +95,7 @@ constexpr auto rotate(const vector<Frame>& v, const quaternion<typename Frame::s
     using T = typename Frame::scalar_type;
     assert(T{1} == std::inner_product(qr.cbegin(), qr.cend(), qr.cbegin(), T{}));
 
-    // see: https://en.wikipedia.org/wiki/Rotation_(mathematics)#Quaternions
+    // https://en.wikipedia.org/wiki/Rotation_(mathematics)#Quaternions
     auto const qo = qr * quaternion{v} * qr.conjugate();
 
     assert(T{} == qo.w());
