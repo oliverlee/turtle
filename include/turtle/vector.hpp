@@ -136,7 +136,7 @@ struct fmt::formatter<turtle::vector<Frame>> : fmt::formatter<typename Frame::sc
 
         auto&& out = ctx.out();
 
-        format_to(out, "(");
+        format_to(out, "[{}] (", Frame::name);
         formatter<T>::format(v.x(), ctx);
         format_to(out, ", ");
         formatter<T>::format(v.y(), ctx);

@@ -177,4 +177,12 @@ auto main() -> int
         constexpr auto u = turtle::vector<N>{0, 1, 1};
         expect(u == v);
     };
+
+    test("Format") = [] {
+        using A = turtle::frame<"A">;
+        constexpr auto v = A::vector{1., 2., 3.};
+
+        expect("[A] (1, 2, 3)" == fmt::format("{}", v));
+        expect("[A] (1.00, 2.00, 3.00)" == fmt::format("{:.2f}", v));
+    };
 }
