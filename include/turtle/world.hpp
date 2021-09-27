@@ -17,6 +17,19 @@ requires std::conjunction_v<
                                   typename Orientations::scalar_type>...>>
 struct world : Orientations... {
     using frame_tree_type = FrameTree;
+
+    template <class From, class To>
+    constexpr auto orientation() & noexcept
+        -> decltype(static_cast<turtle::orientation<From, To>>(*this))
+    {
+        return static_cast<turtle::orientation<From, To>>(*this);
+    }
+    template <class From, class To>
+    constexpr auto orientation() const& noexcept
+        -> decltype(static_cast<turtle::orientation<From, To>>(*this))
+    {
+        return static_cast<turtle::orientation<From, To>>(*this);
+    }
 };
 
 namespace detail {

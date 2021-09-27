@@ -21,7 +21,7 @@ class orientation {
 
     constexpr orientation() = default;
 
-    constexpr orientation(scalar_type angle, typename From::vector axis)
+    orientation(scalar_type angle, typename From::vector axis)
         : rotation_{std::move(angle), std::move(axis)}
     {}
 
