@@ -25,6 +25,17 @@ cc_test(
 )
 
 cc_test(
+  name = "meta",
+  size = "small",
+  srcs = ["meta.cpp"],
+  copts = PROJECT_DEFAULT_COPTS,
+  deps = [
+      "//:turtle",
+      "@ut",
+  ],
+)
+
+cc_test(
   name = "orientation",
   size = "small",
   srcs = ["orientation.cpp"],
