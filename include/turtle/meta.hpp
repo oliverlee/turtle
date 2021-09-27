@@ -14,6 +14,9 @@ struct is_specialization_of : std::false_type {};
 
 template <template <class...> class Primary, class... Args>
 struct is_specialization_of<Primary<Args...>, Primary> : std::true_type {};
+
+template <class T, template <class...> class Primary>
+inline constexpr auto is_specialization_of_v = is_specialization_of<T, Primary>::value;
 ///@}
 
 /// @brief Returns the type with the maximum value
@@ -73,7 +76,6 @@ using concat_t = typename concat<Lists...>::type;
 template <class List, class Tree>
 struct flatten;
 
-// template <template <class...> class List, template <class...> class Tree, class... Nodes>
 template <template <class...> class List, class Tree>
 using flatten_t = typename flatten<List<>, Tree>::type;
 
@@ -90,6 +92,59 @@ template <template <class...> class List, class... Rs, class Leaf>
 struct flatten<List<Rs...>, Leaf> {
     using type = List<Rs..., Leaf>;
 };
+///@}
+
+/// @brief Insert a type into a type tree
+///@{
+template <class Tree, class From, class To, class = void>
+struct tree_insert;
+
+template <template <class...> class Tree, class... Children, class From, class To>
+struct tree_insert<Tree<From, Children...>, From, To> {
+    using type = Tree<From, Children..., To>;
+};
+
+template <template <class...> class Tree, class Parent, class... Children, class From, class To>
+struct tree_insert<Tree<Parent, Children...>,
+                   From,
+                   To,
+                   std::enable_if_t<std::disjunction_v<std::is_same<From, Children>...>>> {
+    using type =
+        Tree<Parent,
+             std::conditional_t<std::is_same_v<From, Children>, Tree<From, To>, Children>...>;
+};
+
+namespace detail {
+
+template <class Tree, class From, class To, class = void>
+struct try_subtree_insert {
+    using type = Tree;
+};
+
+template <class Tree, class From, class To>
+struct try_subtree_insert<Tree, From, To, std::enable_if_t<Tree::template contains_v<From>>> {
+    using type = typename tree_insert<Tree, From, To>::type;
+};
+
+}  // namespace detail
+
+template <template <class...> class Tree, class Parent, class... Children, class From, class To>
+struct tree_insert<Tree<Parent, Children...>,
+                   From,
+                   To,
+                   std::enable_if_t<not std::is_same_v<Parent, From> &&
+                                    std::disjunction_v<is_specialization_of<Children, Tree>...> &&
+                                    not std::disjunction_v<std::is_same<From, Children>...>>> {
+    using type =
+        Tree<Parent,
+             std::conditional_t<is_specialization_of_v<Children, Tree>,
+                                typename detail::try_subtree_insert<Children, From, To>::type,
+                                Children>...>;
+};
+
+template <class Tree, class From, class To>
+using tree_insert_t = tree_insert<Tree, From, To>::type;
+
 ///@}
 
 /// @brief A container for types
@@ -132,15 +187,39 @@ template <class... Types>
 inline constexpr auto are_unique_v = are_unique<Types...>::value;
 ///@}
 
+/// @brief Appends a type to a list
+///@{
+//
+template <class List, class T>
+struct append;
+
+template <template <class...> class List, class... Rs, class T>
+struct append<List<Rs...>, T> {
+    using type = List<Rs..., T>;
+};
+
+template <class List, class T>
+using append_t = typename append<List, T>::type;
+///@}
+
 /// @brief A container for types where the first is a parent and the rest are
 ///     children
 template <class Parent, class... Children>
 struct type_tree {
-    static_assert(sizeof...(Children) != 0);
     using type = type_tree;
 
     using parent_type = Parent;
     using children_types = type_list<Children...>;
+
+    template <class T>
+    using contains = std::negation<append_t<flatten_t<are_unique, type_tree>, T>>;
+
+    template <class T>
+    static constexpr auto contains_v = contains<T>::value;
+
+    template <class From, class To>
+    using add_branch_t = std::enable_if_t<contains_v<From> && not contains_v<To>,
+                                          tree_insert_t<type_tree, From, To>>;
 };
 
 template <class Parent, class... Children>
