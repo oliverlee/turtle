@@ -6,6 +6,8 @@
 
 namespace turtle {
 
+using DefaultScalar = double;
+
 namespace detail {
 template <std::size_t N>
 struct Descriptor;

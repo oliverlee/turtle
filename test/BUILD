@@ -81,3 +81,15 @@ cc_test(
       "@ut",
   ],
 )
+
+cc_test(
+  name = "world",
+  size = "small",
+  srcs = ["world.cpp"],
+  copts = PROJECT_DEFAULT_COPTS,
+  deps = [
+      "//:turtle",
+      ":util",
+      "@ut",
+  ],
+)

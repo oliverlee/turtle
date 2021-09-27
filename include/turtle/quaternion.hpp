@@ -14,7 +14,7 @@ namespace turtle {
 
 inline constexpr std::size_t MAX_NORMALIZED_ULP_DIFF{4};
 
-template <class T = double>
+template <class T = DefaultScalar>
 class quaternion {
     static constexpr auto dimension = 4;
     using data_type = std::array<T, dimension>;

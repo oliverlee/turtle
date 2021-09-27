@@ -212,10 +212,8 @@ struct type_tree {
     using children_types = type_list<Children...>;
 
     template <class T>
-    using contains = std::negation<append_t<flatten_t<are_unique, type_tree>, T>>;
-
-    template <class T>
-    static constexpr auto contains_v = contains<T>::value;
+    static constexpr auto contains_v =
+        std::negation<append_t<flatten_t<are_unique, type_tree>, T>>::value;
 
     template <class From, class To>
     using add_branch_t = std::enable_if_t<contains_v<From> && not contains_v<To>,

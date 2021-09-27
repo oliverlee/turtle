@@ -20,7 +20,7 @@ struct Descriptor {
 
 }  // namespace detail
 
-template <detail::Descriptor Name, class T = double>
+template <detail::Descriptor Name, class T = DefaultScalar>
 struct frame {
     using scalar_type = T;
     using vector = turtle::vector<frame>;
