@@ -17,18 +17,45 @@ requires std::conjunction_v<
                                   typename Orientations::scalar_type>...>>
 struct world : Orientations... {
     using frame_tree_type = FrameTree;
+    using root = typename FrameTree::parent_type;
 
     template <class From, class To>
-    constexpr auto orientation() & noexcept
-        -> decltype(static_cast<turtle::orientation<From, To>>(*this))
+    constexpr auto get() & noexcept -> decltype(static_cast<orientation<From, To>>(*this))
     {
-        return static_cast<turtle::orientation<From, To>>(*this);
+        return static_cast<orientation<From, To>>(*this);
     }
     template <class From, class To>
-    constexpr auto orientation() const& noexcept
-        -> decltype(static_cast<turtle::orientation<From, To>>(*this))
+    constexpr auto get() const& noexcept -> decltype(static_cast<orientation<From, To>>(*this))
     {
-        return static_cast<turtle::orientation<From, To>>(*this);
+        return static_cast<orientation<From, To>>(*this);
+    }
+
+  private:
+    template <class O, class End>
+    constexpr auto compose_path(O ori, meta::type_list<End>) const -> O
+    {
+        return ori;
+    }
+    template <class O, class A, class B, class... Frames>
+    constexpr auto compose_path(O ori, meta::type_list<A, B, Frames...>) const
+        -> decltype(compose_path(std::move(ori) * get<A, B>(), meta::type_list<B, Frames...>{}))
+    {
+        return compose_path(std::move(ori) * get<A, B>(), meta::type_list<B, Frames...>{});
+    }
+
+  public:
+    template <class To>
+    constexpr auto express() const
+        -> decltype(compose_path(orientation<root, root>{}, meta::path_t<To, frame_tree_type>{}))
+    {
+        return compose_path(orientation<root, root>{}, meta::path_t<To, frame_tree_type>{});
+    }
+
+    template <class From, class To>
+    constexpr auto express() const -> orientation<From, To>
+    {
+
+        return express<From>().inverse() * express<To>();
     }
 };
 

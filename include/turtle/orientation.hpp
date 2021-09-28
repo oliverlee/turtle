@@ -41,6 +41,11 @@ class orientation {
 
     constexpr auto rotation() const noexcept -> const quaternion_type& { return rotation_; }
 
+    constexpr auto inverse() const -> orientation<To, From>
+    {
+        return orientation<To, From>{rotation_.conjugate()};
+    }
+
     constexpr auto rotate(const typename From::vector& v) const -> typename To::vector
     {
         const auto u = turtle::rotate(v, rotation_.conjugate());
