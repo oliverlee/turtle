@@ -52,6 +52,11 @@ class quaternion {
 
     constexpr auto conjugate() const -> quaternion { return {w(), -x(), -y(), -z()}; };
 
+    constexpr auto squared_magnitude() const -> T
+    {
+        return std::inner_product(cbegin(), cend(), cbegin(), T{});
+    }
+
     friend constexpr auto operator*(const quaternion& q, const quaternion& p) -> quaternion
     {
         // https://en.wikipedia.org/wiki/Quaternion#Hamilton_product
@@ -60,6 +65,8 @@ class quaternion {
                 q.w() * p.y() + q.y() * p.w() - q.x() * p.z() + q.z() * p.x(),
                 q.w() * p.z() + q.z() * p.w() + q.x() * p.y() - q.y() * p.x()};
     }
+
+    friend constexpr auto operator==(const quaternion&, const quaternion&) -> bool = default;
 
     constexpr auto w() & -> scalar_type& { return std::get<0>(data_); }
     constexpr auto w() && -> scalar_type&& { return std::get<0>(data_); }
@@ -98,8 +105,7 @@ constexpr auto rotate(const vector<Frame>& v, const quaternion<typename Frame::s
     -> vector<Frame>
 {
     using T = typename Frame::scalar_type;
-    assert(MAX_NORMALIZED_ULP_DIFF >=
-           util::ulp_diff(T{1}, std::inner_product(qr.cbegin(), qr.cend(), qr.cbegin(), T{})));
+    assert(MAX_NORMALIZED_ULP_DIFF >= util::ulp_diff(T{1}, qr.squared_magnitude()));
 
     // https://en.wikipedia.org/wiki/Rotation_(mathematics)#Quaternions
     auto const qo = qr * quaternion{v} * qr.conjugate();
