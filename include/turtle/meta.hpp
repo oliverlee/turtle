@@ -49,6 +49,20 @@ template <class TypeList>
 inline constexpr auto list_size_v = list_size<TypeList>::value;
 ///@}
 
+/// @brief Obtains the first type in a parameter pack
+/// @{
+template <class...>
+struct first;
+
+template <class T, class... Ts>
+struct first<T, Ts...> {
+    using type = T;
+};
+
+template <class... Ts>
+using first_t = typename first<Ts...>::type;
+/// @}
+
 /// @brief Concatenates multiple type lists
 ///@{
 template <class List1, class... Lists>

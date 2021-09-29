@@ -69,6 +69,12 @@ class vector {
         return ori.rotate(*this);
     }
 
+    template <con::reference_frame To, con::world World>
+    auto in(const World& world) const -> typename To::vector
+    {
+        return world.template express<reference_frame, To>().rotate(*this);
+    }
+
     template <class UnaryOp>
     static constexpr auto apply_elementwise(const vector& v, UnaryOp uop) -> vector
     {

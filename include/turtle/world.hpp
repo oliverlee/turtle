@@ -4,20 +4,24 @@
 #include "meta.hpp"
 #include "orientation.hpp"
 
-#include <tuple>
+#include <utility>
 
 namespace turtle {
 
-template <class FrameTree, class... Orientations>
+template <class FrameTree, con::orientation... Os>
 requires std::conjunction_v<
     meta::is_specialization_of<FrameTree, meta::type_tree>,
-    std::is_same<typename FrameTree::parent_type,
-                 typename std::tuple_element_t<0, std::tuple<Orientations...>>::from_type>,
-    std::conjunction<std::is_same<typename FrameTree::parent_type::scalar_type,
-                                  typename Orientations::scalar_type>...>>
-struct world : Orientations... {
+    std::is_same<typename FrameTree::parent_type, typename meta::first_t<Os...>::from_type>,
+    std::conjunction<
+        std::is_same<typename FrameTree::parent_type::scalar_type, typename Os::scalar_type>...>>
+class world : Os... {
+  public:
     using frame_tree_type = FrameTree;
     using root = typename FrameTree::parent_type;
+
+    template <class... Args>
+    constexpr world(Args&&... args) : Os(std::forward<Args>(args))...
+    {}
 
     template <class From, class To>
     constexpr auto get() & noexcept -> decltype(static_cast<orientation<From, To>>(*this))
@@ -85,8 +89,8 @@ using make_tree_t = typename make_tree<Ts...>::type;
 
 }  // namespace detail
 
-template <class... Orientations>
-world(Orientations...) -> world<detail::make_tree_t<Orientations...>, Orientations...>;
+template <class... Os>
+world(Os...) -> world<detail::make_tree_t<Os...>, Os...>;
 
 }  // namespace turtle
 
