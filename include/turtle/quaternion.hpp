@@ -7,6 +7,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <fmt/format.h>
 #include <numeric>
 #include <utility>
 
@@ -110,8 +111,30 @@ constexpr auto rotate(const vector<Frame>& v, const quaternion<typename Frame::s
     // https://en.wikipedia.org/wiki/Rotation_(mathematics)#Quaternions
     auto const qo = qr * quaternion{v} * qr.conjugate();
 
-    assert(T{} == qo.w());
+    assert(1e-10 > (qo.w() * qo.w() / qo.squared_magnitude()));
+
     return {qo.x(), qo.y(), qo.z()};
 }
 
 }  // namespace turtle
+
+template <class T>
+struct fmt::formatter<turtle::quaternion<T>> : fmt::formatter<T> {
+    template <class FormatContext>
+    auto format(const turtle::quaternion<T>& q, FormatContext& ctx)
+    {
+        auto&& out = ctx.out();
+
+        format_to(out, "(");
+        formatter<T>::format(q.w(), ctx);
+        format_to(out, ", ");
+        formatter<T>::format(q.x(), ctx);
+        format_to(out, ", ");
+        formatter<T>::format(q.y(), ctx);
+        format_to(out, ", ");
+        formatter<T>::format(q.z(), ctx);
+        format_to(out, ")");
+
+        return out;
+    }
+};

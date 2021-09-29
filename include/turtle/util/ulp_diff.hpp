@@ -13,13 +13,13 @@ namespace detail {
 template <class Int, class T>
 constexpr auto ulp_diff(const T& t, const T& u) -> std::size_t
 {
-    assert(std::signbit(t) == std::signbit(u));
-    assert(std::isnormal(t) and std::isnormal(u));
+    assert(std::isfinite(t) and std::isfinite(u));
 
-    const auto i = std::bit_cast<Int>(t);
-    const auto j = std::bit_cast<Int>(u);
+    const auto a = (std::signbit(t) == std::signbit(u)) ? -1 : 1;
+    const auto i = std::bit_cast<Int>(std::abs(t));
+    const auto j = std::bit_cast<Int>(std::abs(u));
 
-    return static_cast<std::size_t>(std::abs(i - j));
+    return static_cast<std::size_t>(std::abs(i + (a * j)));
 }
 }  // namespace detail
 

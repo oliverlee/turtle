@@ -1,34 +1,33 @@
 #include "fmt/core.h"
 #include "turtle/turtle.hpp"
 
-#include <cmath>
 #include <numbers>
 
 auto main() -> int
 {
+    using std::numbers::pi;
+    using turtle::frame;
+    using turtle::orientation;
+    using turtle::world;
+
     fmt::print("hello! - 🐢 \n");
 
-    using N = turtle::frame<"N">;
+    using N = frame<"N">;
+
     constexpr auto n = N{};
     fmt::print("frame: {}\n", n);
 
-    constexpr auto v = N::vector{1., 2., 3.};
-    fmt::print("v: {}\n", v);
+    constexpr auto v = 1 * n.x + 2 * n.y + 3 * n.z;
+    fmt::print("v: {:.2f}\n", v);
 
-    constexpr auto u = 1 * n.x + 2 * n.y + 3 * n.z;
-    fmt::print("u: {:.2f}\n", u);
+    using A = frame<"A">;
+    using B = frame<"B">;
 
-    using std::numbers::pi;
+    const auto w = world{orientation<N, A>{pi / 2., N::vector{1., 0., 0.}},
+                         orientation<N, B>{-pi / 6., N::vector{0., 0., 1.}}};
 
-    fmt::print("u: {}\n",
-               turtle::rotate(
-                   u, turtle::quaternion{std::cos(pi / 2. / 2.), std::sin(pi / 2. / 2.), 0., 0.}));
-
-    fmt::print("u: {}\n", turtle::rotate(u, turtle::quaternion{pi / 2., N::vector{1., 0., 0.}}));
-
-    using A = turtle::frame<"A">;
-    const auto o = turtle::orientation<N, A>{pi / 2., N::vector{1., 0., 0.}};
-    fmt::print("applying orientation\n  {:.2f}\non    {:.2f}\ngives {:.2f}\n", o, v, v.in(o));
+    constexpr auto u = A::vector{1., 2., 3.};
+    fmt::print("vector {} in frame {} is {}\n", u, B{}, u.in<B>(w));
 
     return 0;
 }
