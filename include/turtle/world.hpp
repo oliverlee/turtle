@@ -4,6 +4,9 @@
 #include "meta.hpp"
 #include "orientation.hpp"
 
+#include <cstring>
+#include <iterator>
+#include <type_traits>
 #include <utility>
 
 namespace turtle {
@@ -18,6 +21,7 @@ class world : Os... {
   public:
     using frame_tree_type = FrameTree;
     using root = typename FrameTree::parent_type;
+    using scalar_type = typename root::scalar_type;
 
     template <class... Args>
     constexpr world(Args&&... args) : Os(std::forward<Args>(args))...
@@ -92,6 +96,110 @@ using make_tree_t = typename make_tree<Ts...>::type;
 template <class... Os>
 world(Os...) -> world<detail::make_tree_t<Os...>, Os...>;
 
+namespace detail {
+
+struct branch_printer {
+    branch_printer() { fmt::format_to(std::back_inserter(prefix), "  "); }
+
+    template <class World, class FormatContext, class From, class To>
+    auto operator()(const World&, FormatContext& ctx, From, To, bool last) const
+    {
+        fmt::format_to(ctx.out(),
+                       "{}{} {}\n",
+                       std::string_view(prefix.data(), prefix.size()),
+                       last ? "└─" : "├─",
+                       To{});
+    }
+
+    static constexpr auto mark(bool last) -> const char* { return last ? " " : "│"; }
+
+    auto ascend(bool last) &
+    {
+        const auto count = 2 + std::strlen(mark(last));
+        prefix.resize(prefix.size() - count);
+    }
+
+    auto descend(bool last) & { fmt::format_to(std::back_inserter(prefix), "{}  ", mark(last)); }
+
+    fmt::memory_buffer prefix{};
+};
+
+struct orientation_printer {
+    template <class World, class FormatContext, class From, class To>
+    auto operator()(const World& world, FormatContext& ctx, From, To, bool) const
+    {
+        fmt::format_to(ctx.out(), "{}\n", world.template get<From, To>());
+    }
+
+    auto ascend(bool) & {}
+    auto descend(bool) & {}
+};
+
+}  // namespace detail
+
 }  // namespace turtle
 
-// TODO world formatter
+template <turtle::con::world W>
+struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
+
+    template <class Printer, class FormatContext, class From>
+    auto print_tree(Printer&&, const W&, FormatContext&, From, turtle::meta::type_list<>)
+    {}
+
+    template <class Printer,
+              class FormatContext,
+              class From,
+              turtle::con::reference_frame To,
+              class... Frames>
+    auto print_tree(Printer&& printer,
+                    const W& world,
+                    FormatContext& ctx,
+                    From,
+                    turtle::meta::type_list<To, Frames...>)
+    {
+        printer(world, ctx, From{}, To{}, sizeof...(Frames) == 0);
+        print_tree(printer, world, ctx, From{}, turtle::meta::type_list<Frames...>{});
+    }
+
+    template <class Printer,
+              class FormatContext,
+              class From,
+              class To,
+              class... SubFrames,
+              class... Frames>
+    auto print_tree(Printer&& printer,
+                    const W& world,
+                    FormatContext& ctx,
+                    From,
+                    turtle::meta::type_list<turtle::meta::type_tree<To, SubFrames...>, Frames...>)
+    {
+        const auto last = sizeof...(Frames) == 0;
+        printer(world, ctx, From{}, To{}, last);
+
+        printer.descend(last);
+        print_tree(printer, world, ctx, To{}, turtle::meta::type_list<SubFrames...>{});
+        printer.ascend(last);
+
+        print_tree(printer, world, ctx, From{}, turtle::meta::type_list<Frames...>{});
+    }
+
+    template <class FormatContext>
+    auto format(const W& world, FormatContext& ctx)
+    {
+        auto&& out = ctx.out();
+        const auto root = typename W::root{};
+
+        format_to(out, "🐢 {}\n", root);
+
+        auto bpr = turtle::detail::branch_printer{};
+
+        print_tree(bpr, world, ctx, root, typename W::frame_tree_type::children_types{});
+        print_tree(turtle::detail::orientation_printer{},
+                   world,
+                   ctx,
+                   root,
+                   typename W::frame_tree_type::children_types{});
+
+        return out;
+    }
+};
