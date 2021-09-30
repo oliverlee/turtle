@@ -8,6 +8,7 @@ on:
 
 env:
   BAZEL_VERSION: "4.2.1"
+  GCC_VERSION: 11
   LLVM_VERSION: 13
 
 jobs:
@@ -22,13 +23,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Print compiler info
+    - name: Setup compiler info
       run: |
         if [[ "${{ matrix.config }}" == "clang"  ]]; then
           clang --version
+          echo "compiler=clang" >> $GITHUB_ENV
         else
-          gcc --version
+          sudo apt-get update
+          sudo apt-get install -y g++-${GCC_VERSION}
+          echo "compiler=g++-${GCC_VERSION}" >> $GITHUB_ENV
         fi
+
+    - name: Print compiler info
+      run: |
+        ${{ env.compiler }} --version
 
     - id: cache-bazel-install
       uses: actions/cache@v2
@@ -64,6 +72,7 @@ jobs:
 
     - name: Build and Test
       run: |
+        export CC=${{ env.compiler }}
         bazel build --config=${{ matrix.config }} //...
         bazel test --config=${{ matrix.config }} //...
 
@@ -113,9 +122,9 @@ jobs:
         with:
           path: |
             ~/.cache/bazel
-          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.compiler }}-${{ github.sha }}
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-${{ github.sha }}
           restore-keys: |
-            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.compiler }}-
+            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-
 
       - name: Setup Bazel
         run: |
