@@ -7,10 +7,8 @@ on:
     branches: [ master ]
 
 env:
-  BAZEL_VERSION: "4.1.0"
+  BAZEL_VERSION: "4.2.1"
   LLVM_VERSION: 13
-  GTEST_COLOR: 1
-  FAKE_CLOCK_REPEAT_COUNT: 100
 
 jobs:
   test:
@@ -62,6 +60,7 @@ jobs:
         fi
 
         cat .bazelrc.ci >> .bazelrc
+        bazel --version
 
     - name: Build and Test
       run: |
