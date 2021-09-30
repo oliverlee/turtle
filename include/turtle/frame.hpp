@@ -2,23 +2,10 @@
 
 #include "vector.hpp"
 
-#include <algorithm>
-#include <array>
 #include <fmt/format.h>
 #include <string_view>
 
 namespace turtle {
-
-namespace detail {
-
-template <std::size_t N>
-struct Descriptor {
-    constexpr Descriptor(const char (&str)[N]) { std::copy_n(str, N, name.data()); }
-
-    std::array<char, N> name{};
-};
-
-}  // namespace detail
 
 template <detail::Descriptor Name, class T = DefaultScalar>
 struct frame {

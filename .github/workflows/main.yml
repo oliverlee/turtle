@@ -23,11 +23,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup compiler info
+    - name: Install compiler
       run: |
         if [[ "${{ matrix.config }}" == "clang"  ]]; then
-          clang --version
-          echo "compiler=clang" >> $GITHUB_ENV
+          sudo .github/workflows/llvm.sh ${LLVM_VERSION}
+          sudo apt-get install -y libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
+          echo "compiler=clang++-${LLVM_VERSION}" >> $GITHUB_ENV
         else
           sudo apt-get update
           sudo apt-get install -y g++-${GCC_VERSION}
@@ -37,6 +38,8 @@ jobs:
     - name: Print compiler info
       run: |
         ${{ env.compiler }} --version
+        echo "build --repo_env='CC=$(which ${{ env.compiler }})'" >> .bazelrc.ci
+        tail .bazelrc.ci
 
     - name: Suppress GCC bug 'https://gcc.gnu.org/bugzilla//show_bug.cgi?id=100878'
       if: matrix.config != 'clang' && matrix.config != 'gcc'
@@ -112,7 +115,7 @@ jobs:
 
       - name: Link clang-tidy to clang-tidy-${{ env.LLVM_VERSION }}
         run: |
-          sudo ln -s $(which clang-tidy-13) /usr/bin/clang-tidy
+          sudo ln -s $(which clang-tidy-${LLVM_VERSION}) /usr/bin/clang-tidy
           clang-tidy --version
 
       - id: cache-bazel-install
@@ -147,8 +150,5 @@ jobs:
           cat .bazelrc.ci >> .bazelrc
 
       - name: Lint
-        env:
-          CC: clang
-          CXX: clang++
         run: |
-          bazel build --config=clang-tidy //...
+          CC=clang bazel build --config=clang-tidy //...
