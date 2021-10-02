@@ -24,25 +24,22 @@ auto main() -> int
     using A = frame<"A">;
     using B = frame<"B">;
 
-    using C = frame<"C">;
-    using D = frame<"D">;
-    using E = frame<"E">;
-    using F = frame<"F">;
-    using G = frame<"G">;
-
-    const auto w = world{
-        orientation<N, A>{pi / 2., N::vector{1., 0., 0.}},
-        orientation<N, B>{-pi / 6., N::vector{0., 0., 1.}},
-        orientation<B, C>{pi / 4., B::vector{0., 1., 0.}},
-        orientation<A, D>{pi / 4., A::vector{0., 1., 0.}},
-        orientation<D, E>{pi / 4., D::vector{0., 1., 0.}},
-        orientation<A, F>{pi / 4., A::vector{0., 1., 0.}},
-        orientation<A, G>{pi / 4., A::vector{0., 1., 0.}}};
-
+    const auto w = world{orientation<N, A>{pi / 2., N::vector{1., 0., 0.}},
+                         orientation<N, B>{-pi / 6., N::vector{0., 0., 1.}}};
     fmt::print("using world w:\n{}\n", w);
 
     constexpr auto u = A::vector{1., 2., 3.};
     fmt::print("vector {} in frame {} is {}\n", u, B{}, u.in<B>(w));
+
+    using P = decltype(w)::point;
+
+    constexpr auto p = P{};
+    fmt::print("\ncreating a point p at w's origin {}\n", p);
+    fmt::print("expressing p in {}\n", p.position<B>(w));
+
+    constexpr auto q = P{A::vector{0., 2., 1.}};
+    fmt::print("\nand a point q {}\n", q);
+    fmt::print("expressing in {}\n", q.position<B>(w));
 
     return 0;
 }

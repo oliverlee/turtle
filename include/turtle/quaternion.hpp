@@ -113,6 +113,11 @@ constexpr auto
 rotate(const vector<Frame>& v, const quaternion<typename Frame::scalar>& qr)
     -> vector<Frame>
 {
+    // TODO: use a better check for zero vector
+    if (v == vector<Frame>{}) {
+        return {};
+    }
+
     using T = typename Frame::scalar;
     assert(MAX_NORMALIZED_ULP_DIFF >=
            util::ulp_diff(T{1}, qr.squared_magnitude()));
@@ -121,7 +126,6 @@ rotate(const vector<Frame>& v, const quaternion<typename Frame::scalar>& qr)
     auto const qo = qr * quaternion{v} * qr.conjugate();
 
     assert(1e-10 > (qo.w() * qo.w() / qo.squared_magnitude()));
-
     return {qo.x(), qo.y(), qo.z()};
 }
 

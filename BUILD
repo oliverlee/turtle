@@ -16,6 +16,7 @@ cc_library(
         "include/turtle/fwd.hpp",
         "include/turtle/meta.hpp",
         "include/turtle/orientation.hpp",
+        "include/turtle/point.hpp",
         "include/turtle/quaternion.hpp",
         "include/turtle/turtle.hpp",
         "include/turtle/util/array.hpp",

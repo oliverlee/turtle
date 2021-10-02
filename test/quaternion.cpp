@@ -139,6 +139,8 @@ auto main() -> int
     };
 
     test("rotate aborts with non-unit quaternion") = [] {
-        expect(aborts([] { rotate(N::vector{}, turtle::quaternion{}); }));
+        expect(aborts([] {
+            rotate(N::vector{1., 0., 0.}, turtle::quaternion{1., 1., 1., 1.});
+        }));
     };
 }

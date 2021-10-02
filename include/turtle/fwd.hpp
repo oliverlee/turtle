@@ -98,4 +98,7 @@ concept world = is_world_v<T>;
 
 }
 
+template <kinematic::world World>
+class point;
+
 }  // namespace turtle
