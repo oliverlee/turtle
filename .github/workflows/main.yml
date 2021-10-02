@@ -38,6 +38,12 @@ jobs:
       run: |
         ${{ env.compiler }} --version
 
+    - name: Suppress GCC bug 'https://gcc.gnu.org/bugzilla//show_bug.cgi?id=100878'
+      if: matrix.config != 'clang' && matrix.config != 'gcc'
+      run: |
+        printf '%s\n%s\n'  $(${{ env.compiler }} -dumpfullversion -dumpversion) 11.1.0 | sort --check --version-sort
+        echo "build --copt -Wno-nonnull" >> .bazelrc.ci
+
     - id: cache-bazel-install
       uses: actions/cache@v2
       with:
