@@ -13,10 +13,10 @@ build:gcc    --announce_rc
 
 # https://github.com/bazelbuild/bazel/issues/13071#issue-812484249
 build:clang --copt -stdlib=libc++
-build:clang --copt -isystem/usr/lib/llvm-13/bin/../include/c++/v1
-build:clang --copt -isystem/usr/lib/llvm-13/lib/clang/13.0.0/include
 build:clang --linkopt -lc++
 build:clang --linkopt -lm
+build:clang -s
+build:clang --sandbox_debug
 
 test --test_output=all
 test --test_verbose_timeout_warnings

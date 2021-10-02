@@ -30,3 +30,28 @@ new_git_repository(
     remote = "https://github.com/boost-ext/ut/",
     build_file = "@//:external/ut.BUILD"
 )
+
+# https://github.com/bazelbuild/bazel/issues/8846
+new_local_repository(
+  name = "llvm",
+  path = "/usr/lib/llvm-13/",
+  build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+  name = "c++",
+  hdrs = glob(["include/c++/v1/**/*"]),
+  includes = [
+    "include/c++/v1",
+  ],
+  strip_include_prefix = "include/c++/v1",
+)
+cc_library(
+  name = "clang",
+  hdrs = glob(["lib/clang/13.0.0/include/**/*"]),
+  includes = [
+    "lib/clang/13.0.0/include",
+  ],
+  strip_include_prefix = "lib/clang/13.0.0/include",
+)
+"""
+)

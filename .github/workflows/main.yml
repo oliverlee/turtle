@@ -27,7 +27,7 @@ jobs:
       run: |
         if [[ "${{ matrix.config }}" == "clang"  ]]; then
           sudo .github/workflows/llvm.sh ${LLVM_VERSION}
-          sudo apt-get install -y libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
+          sudo apt-get install -y clang-${LLVM_VERSION} libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
           echo "compiler=clang++-${LLVM_VERSION}" >> $GITHUB_ENV
         else
           sudo apt-get update
