@@ -17,20 +17,11 @@ http_archive(
   sha256 = "9943da5967e470a5c0165233242e51538b2a0fa11b15820d399314082cd99a09",
 )
 
-# Fetch all files from fmt including the BUILD file `support/bazel/BUILD.bazel`
-new_git_repository(
-    name = "fmt_workaround",
-    commit = "d9a731d4862891f274b63cef14bde0e5558a290f",
-    remote = "https://github.com/fmtlib/fmt/",
-    build_file_content = "# Empty build file on purpose"
-)
-
-# Now the BUILD file `support/bazel/BUILD.bazel` can be used:
 new_git_repository(
     name = "fmt",
     commit = "d9a731d4862891f274b63cef14bde0e5558a290f",
     remote = "https://github.com/fmtlib/fmt/",
-    build_file = "@fmt_workaround//:support/bazel/BUILD.bazel"
+    build_file = "@//:external/fmt.BUILD",
 )
 
 new_git_repository(
@@ -38,4 +29,29 @@ new_git_repository(
     commit = "c3ed7a21a18a4de3fc807451ae86c9f51e706a11",
     remote = "https://github.com/boost-ext/ut/",
     build_file = "@//:external/ut.BUILD"
+)
+
+# https://github.com/bazelbuild/bazel/issues/8846
+new_local_repository(
+  name = "llvm",
+  path = "/usr/lib/llvm-13/",
+  build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+  name = "c++",
+  hdrs = glob(["include/c++/v1/**/*"]),
+  includes = [
+    "include/c++/v1",
+  ],
+  strip_include_prefix = "include/c++/v1",
+)
+cc_library(
+  name = "clang",
+  hdrs = glob(["lib/clang/13.0.0/include/**/*"]),
+  includes = [
+    "lib/clang/13.0.0/include",
+  ],
+  strip_include_prefix = "lib/clang/13.0.0/include",
+)
+"""
 )

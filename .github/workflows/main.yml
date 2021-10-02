@@ -2,15 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
-  BAZEL_VERSION: "4.1.0"
+  BAZEL_VERSION: "4.2.1"
+  GCC_VERSION: 11
   LLVM_VERSION: 13
-  GTEST_COLOR: 1
-  FAKE_CLOCK_REPEAT_COUNT: 100
 
 jobs:
   test:
@@ -24,13 +23,29 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Print compiler info
+    - name: Install compiler
       run: |
         if [[ "${{ matrix.config }}" == "clang"  ]]; then
-          clang --version
+          sudo .github/workflows/llvm.sh ${LLVM_VERSION}
+          sudo apt-get install -y clang-${LLVM_VERSION} libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
+          echo "compiler=clang++-${LLVM_VERSION}" >> $GITHUB_ENV
         else
-          gcc --version
+          sudo apt-get update
+          sudo apt-get install -y g++-${GCC_VERSION}
+          echo "compiler=g++-${GCC_VERSION}" >> $GITHUB_ENV
         fi
+
+    - name: Print compiler info
+      run: |
+        ${{ env.compiler }} --version
+        echo "build --repo_env='CC=$(which ${{ env.compiler }})'" >> .bazelrc.ci
+        tail .bazelrc.ci
+
+    - name: Suppress GCC bug 'https://gcc.gnu.org/bugzilla//show_bug.cgi?id=100878'
+      if: matrix.config != 'clang' && matrix.config != 'gcc'
+      run: |
+        printf '%s\n%s\n'  $(${{ env.compiler }} -dumpfullversion -dumpversion) 11.1.0 | sort --check --version-sort
+        echo "build --copt -Wno-nonnull" >> .bazelrc.ci
 
     - id: cache-bazel-install
       uses: actions/cache@v2
@@ -62,9 +77,11 @@ jobs:
         fi
 
         cat .bazelrc.ci >> .bazelrc
+        bazel --version
 
     - name: Build and Test
       run: |
+        export CC=${{ env.compiler }}
         bazel build --config=${{ matrix.config }} //...
         bazel test --config=${{ matrix.config }} //...
 
@@ -98,7 +115,7 @@ jobs:
 
       - name: Link clang-tidy to clang-tidy-${{ env.LLVM_VERSION }}
         run: |
-          sudo ln -s $(which clang-tidy-13) /usr/bin/clang-tidy
+          sudo ln -s $(which clang-tidy-${LLVM_VERSION}) /usr/bin/clang-tidy
           clang-tidy --version
 
       - id: cache-bazel-install
@@ -114,9 +131,9 @@ jobs:
         with:
           path: |
             ~/.cache/bazel
-          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.compiler }}-${{ github.sha }}
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-${{ github.sha }}
           restore-keys: |
-            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.compiler }}-
+            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-
 
       - name: Setup Bazel
         run: |
@@ -133,8 +150,5 @@ jobs:
           cat .bazelrc.ci >> .bazelrc
 
       - name: Lint
-        env:
-          CC: clang
-          CXX: clang++
         run: |
-          bazel build --config=clang-tidy //...
+          CC=clang bazel build --config=clang-tidy //...

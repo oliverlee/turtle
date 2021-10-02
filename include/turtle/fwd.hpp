@@ -2,6 +2,8 @@
 
 #include "meta.hpp"
 
+#include <algorithm>
+#include <array>
 #include <concepts>
 #include <cstddef>
 #include <type_traits>
@@ -11,9 +13,15 @@ namespace turtle {
 using DefaultScalar = double;
 
 namespace detail {
+
 template <std::size_t N>
-struct Descriptor;
-}
+struct Descriptor {
+    constexpr Descriptor(const char (&str)[N]) { std::copy_n(str, N, name.data()); }
+
+    std::array<char, N> name{};
+};
+
+}  // namespace detail
 
 template <detail::Descriptor Name, class T>
 struct frame;

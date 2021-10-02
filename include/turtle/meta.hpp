@@ -157,7 +157,7 @@ struct tree_insert<Tree<Parent, Children...>,
 };
 
 template <class Tree, class From, class To>
-using tree_insert_t = tree_insert<Tree, From, To>::type;
+using tree_insert_t = typename tree_insert<Tree, From, To>::type;
 
 ///@}
 

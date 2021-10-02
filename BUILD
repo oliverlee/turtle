@@ -1,4 +1,8 @@
-load("@local_config//:defs.bzl", "PROJECT_DEFAULT_COPTS")
+load(
+  "@local_config//:defs.bzl",
+  "PROJECT_DEFAULT_COPTS",
+  "PROJECT_LLVM_WORKAROUND_DEPS",
+)
 
 exports_files([".clang-tidy"], visibility=["//:__subpackages__"])
 
@@ -20,6 +24,6 @@ cc_library(
     ],
     copts = PROJECT_DEFAULT_COPTS,
     strip_include_prefix = "include",
-    deps = ["@fmt"],
+    deps = ["@fmt"] + PROJECT_LLVM_WORKAROUND_DEPS,
     visibility = ["//visibility:public"],
 )
