@@ -25,6 +25,13 @@ new_git_repository(
 )
 
 new_git_repository(
+    name = "metal",
+    commit = "8d687739ec9fbc7768f8cbf5e192d9ffdb41dc3a",
+    remote = "https://github.com/brunocodutra/metal/",
+    build_file = "@//:external/metal.BUILD",
+)
+
+new_git_repository(
     name = "ut",
     commit = "c3ed7a21a18a4de3fc807451ae86c9f51e706a11",
     remote = "https://github.com/boost-ext/ut/",

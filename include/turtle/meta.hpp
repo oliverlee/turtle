@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <metal.hpp>
 #include <type_traits>
 #include <utility>
 
