@@ -1,7 +1,8 @@
 #pragma once
 
+#include "metal.hpp"
+
 #include <cstddef>
-#include <metal.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -17,7 +18,8 @@ template <template <class...> class Primary, class... Args>
 struct is_specialization_of<Primary<Args...>, Primary> : std::true_type {};
 
 template <class T, template <class...> class Primary>
-inline constexpr auto is_specialization_of_v = is_specialization_of<T, Primary>::value;
+inline constexpr auto is_specialization_of_v =
+    is_specialization_of<T, Primary>::value;
 ///@}
 
 /// @brief Returns the type with the maximum value
@@ -30,7 +32,9 @@ struct max<V1> : V1 {};
 
 template <class V1, class V2, class... Vn>
 struct max<V1, V2, Vn...>
-    : std::conditional_t<(V1::value > V2::value), max<V1, Vn...>, max<V2, Vn...>> {};
+    : std::conditional_t<(V1::value > V2::value),
+                         max<V1, Vn...>,
+                         max<V2, Vn...>> {};
 
 template <class... Vn>
 inline constexpr auto max_v = max<Vn...>::value;
@@ -75,7 +79,8 @@ struct concat<List<Types1...>, List<Types2...>> {
 };
 
 template <class List1, class List2, class... Lists>
-struct concat<List1, List2, Lists...> : concat<typename concat<List1, List2>::type, Lists...> {};
+struct concat<List1, List2, Lists...>
+    : concat<typename concat<List1, List2>::type, Lists...> {};
 
 template <class List1>
 struct concat<List1> {
@@ -114,19 +119,29 @@ struct flatten<List<Rs...>, Leaf> {
 template <class Tree, class From, class To, class = void>
 struct tree_insert;
 
-template <template <class...> class Tree, class... Children, class From, class To>
+template <template <class...> class Tree,
+          class... Children,
+          class From,
+          class To>
 struct tree_insert<Tree<From, Children...>, From, To> {
     using type = Tree<From, Children..., To>;
 };
 
-template <template <class...> class Tree, class Parent, class... Children, class From, class To>
-struct tree_insert<Tree<Parent, Children...>,
-                   From,
-                   To,
-                   std::enable_if_t<std::disjunction_v<std::is_same<From, Children>...>>> {
+template <template <class...> class Tree,
+          class Parent,
+          class... Children,
+          class From,
+          class To>
+struct tree_insert<
+    Tree<Parent, Children...>,
+    From,
+    To,
+    std::enable_if_t<std::disjunction_v<std::is_same<From, Children>...>>> {
     using type =
         Tree<Parent,
-             std::conditional_t<std::is_same_v<From, Children>, Tree<From, To>, Children>...>;
+             std::conditional_t<std::is_same_v<From, Children>,
+                                Tree<From, To>,
+                                Children>...>;
 };
 
 namespace detail {
@@ -137,24 +152,34 @@ struct try_subtree_insert {
 };
 
 template <class Tree, class From, class To>
-struct try_subtree_insert<Tree, From, To, std::enable_if_t<Tree::template contains_v<From>>> {
+struct try_subtree_insert<Tree,
+                          From,
+                          To,
+                          std::enable_if_t<Tree::template contains_v<From>>> {
     using type = typename tree_insert<Tree, From, To>::type;
 };
 
 }  // namespace detail
 
-template <template <class...> class Tree, class Parent, class... Children, class From, class To>
-struct tree_insert<Tree<Parent, Children...>,
-                   From,
-                   To,
-                   std::enable_if_t<not std::is_same_v<Parent, From> &&
-                                    std::disjunction_v<is_specialization_of<Children, Tree>...> &&
-                                    not std::disjunction_v<std::is_same<From, Children>...>>> {
+template <template <class...> class Tree,
+          class Parent,
+          class... Children,
+          class From,
+          class To>
+struct tree_insert<
+    Tree<Parent, Children...>,
+    From,
+    To,
+    std::enable_if_t<
+        not std::is_same_v<Parent, From> &&
+        std::disjunction_v<is_specialization_of<Children, Tree>...> &&
+        not std::disjunction_v<std::is_same<From, Children>...>>> {
     using type =
         Tree<Parent,
-             std::conditional_t<is_specialization_of_v<Children, Tree>,
-                                typename detail::try_subtree_insert<Children, From, To>::type,
-                                Children>...>;
+             std::conditional_t<
+                 is_specialization_of_v<Children, Tree>,
+                 typename detail::try_subtree_insert<Children, From, To>::type,
+                 Children>...>;
 };
 
 template <class Tree, class From, class To>
@@ -186,17 +211,20 @@ template <class, class, class = void>
 struct are_unique : std::false_type {};
 
 template <std::size_t... Is, class... Ts>
-struct are_unique<std::index_sequence<Is...>,
-                  type_list<Ts...>,
-                  std::void_t<decltype(
+struct are_unique<
+    std::index_sequence<Is...>,
+    type_list<Ts...>,
+    std::void_t<decltype(
 
-                      static_cast<std::type_identity<Ts>>(inherit<indexed_type<Is, Ts>...>{})
+        static_cast<std::type_identity<Ts>>(inherit<indexed_type<Is, Ts>...>{})
 
-                          )...>> : std::true_type {};
+            )...>> : std::true_type {};
 }  // namespace detail
 
 template <class... Types>
-struct are_unique : detail::are_unique<std::index_sequence_for<Types...>, type_list<Types...>> {};
+struct are_unique
+    : detail::are_unique<std::index_sequence_for<Types...>,
+                         type_list<Types...>> {};
 
 template <class... Types>
 inline constexpr auto are_unique_v = are_unique<Types...>::value;
@@ -231,8 +259,9 @@ struct type_tree {
         std::negation<append_t<flatten_t<are_unique, type_tree>, T>>::value;
 
     template <class From, class To>
-    using add_branch_t = std::enable_if_t<contains_v<From> && not contains_v<To>,
-                                          tree_insert_t<type_tree, From, To>>;
+    using add_branch_t =
+        std::enable_if_t<contains_v<From> && not contains_v<To>,
+                         tree_insert_t<type_tree, From, To>>;
 };
 
 template <class Parent, class... Children>
@@ -250,7 +279,8 @@ struct tree_depth<type_tree<Parent>> {
 };
 template <class Parent, class Child1, class... Children>
 struct tree_depth<type_tree<Parent, Child1, Children...>> {
-    static constexpr std::size_t value = 1 + max_v<tree_depth<Child1>, tree_depth<Children>...>;
+    static constexpr std::size_t value =
+        1 + max_v<tree_depth<Child1>, tree_depth<Children>...>;
 };
 template <class T>
 inline constexpr auto tree_depth_v = tree_depth<T>::value;
@@ -266,29 +296,32 @@ struct path {
 template <class Node, class Tree>
 using path_t = typename path<Node, Tree>::type;
 
-
 template <class Node, class... Children>
 struct path<Node, type_tree<Node, Children...>> {
     using type = type_list<Node>;
 };
 
 template <class Node, class Parent, class... Children>
-struct path<Node,
-            type_tree<Parent, Children...>,
-            std::enable_if_t<std::disjunction_v<std::is_same<Node, Children>...>>> {
+struct path<
+    Node,
+    type_tree<Parent, Children...>,
+    std::enable_if_t<std::disjunction_v<std::is_same<Node, Children>...>>> {
     using type = type_list<Parent, Node>;
 };
 
 template <class Node, class Parent, class... Children>
-struct path<Node,
-            type_tree<Parent, Children...>,
-            std::enable_if_t<not std::is_same_v<Node, Parent> &&
-                             std::disjunction_v<is_specialization_of<Children, type_tree>...> &&
-                             not std::disjunction_v<std::is_same<Node, Children>...>>> {
+struct path<
+    Node,
+    type_tree<Parent, Children...>,
+    std::enable_if_t<
+        not std::is_same_v<Node, Parent> &&
+        std::disjunction_v<is_specialization_of<Children, type_tree>...> &&
+        not std::disjunction_v<std::is_same<Node, Children>...>>> {
     using subtree_path = concat_t<path_t<Node, Children>...>;
-    using type = std::conditional_t<list_size_v<subtree_path> == 0,
-                                    type_list<>,
-                                    concat_t<type_list<Parent>, subtree_path>>;
+    using type =
+        std::conditional_t<list_size_v<subtree_path> == 0,
+                           type_list<>,
+                           concat_t<type_list<Parent>, subtree_path>>;
 };
 ///@}
 

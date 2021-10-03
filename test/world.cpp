@@ -1,9 +1,10 @@
 #include "turtle/world.hpp"
 
-#include "boost/ut.hpp"
-#include "test/util/within.hpp"
 #include "turtle/frame.hpp"
 #include "turtle/orientation.hpp"
+#include "test/util/within.hpp"
+
+#include "boost/ut.hpp"
 
 #include <numbers>
 
@@ -44,7 +45,8 @@ auto main() -> int
         using W = std::remove_cvref_t<decltype(w)>;
         using turtle::meta::type_tree;
         static_assert(
-            std::is_same_v<type_tree<N, type_tree<A, type_tree<B, C>>>, W::frame_tree_type>);
+            std::is_same_v<type_tree<N, type_tree<A, type_tree<B, C>>>,
+                           W::frame_tree_type>);
     };
 
     test("world constructible - simple tree") = [] {
@@ -61,7 +63,8 @@ auto main() -> int
 
         using W = std::remove_cvref_t<decltype(w)>;
         using turtle::meta::type_tree;
-        static_assert(std::is_same_v<type_tree<N, type_tree<A, B>, C>, W::frame_tree_type>);
+        static_assert(std::is_same_v<type_tree<N, type_tree<A, B>, C>,
+                                     W::frame_tree_type>);
     };
 
     test("world access orientation") = [] {
@@ -120,7 +123,8 @@ auto main() -> int
         const auto w = world{orientation<N, A>{angle, N::vector{1., 0., 0.}},
                              orientation<A, B>{angle, A::vector{1., 0., 0.}}};
 
-        expect(within<1e-12>(B::vector{0., -1., 0.}, N::vector{0., 1., 0.}.in<B>(w)));
+        expect(within<1e-12>(
+            B::vector{0., -1., 0.}, N::vector{0., 1., 0.}.in<B>(w)));
     };
 
     test("express vector in world with 2 branches") = [] {
@@ -133,6 +137,7 @@ auto main() -> int
         const auto w = world{orientation<N, A>{angle, N::vector{1., 0., 0.}},
                              orientation<N, B>{-angle, N::vector{1., 0., 0.}}};
 
-        expect(within<1e-12>(B::vector{0., -1., 0.}, A::vector{0., 1., 0.}.in<B>(w)));
+        expect(within<1e-12>(
+            B::vector{0., -1., 0.}, A::vector{0., 1., 0.}.in<B>(w)));
     };
 }

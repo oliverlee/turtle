@@ -25,10 +25,13 @@ auto main() -> int
     struct G {};
 
     test("flatten") = [] {
-        static_assert(std::is_same_v<type_list<A, A>, flatten_t<type_list, type_tree<A, A>>>);
+        static_assert(std::is_same_v<type_list<A, A>,
+                                     flatten_t<type_list, type_tree<A, A>>>);
 
-        static_assert(std::is_same_v<type_list<A, B, D, E, C>,
-                                     flatten_t<type_list, type_tree<A, type_tree<B, D, E>, C>>>);
+        static_assert(
+            std::is_same_v<
+                type_list<A, B, D, E, C>,
+                flatten_t<type_list, type_tree<A, type_tree<B, D, E>, C>>>);
     };
 
     test("unique types") = [] {
@@ -64,20 +67,31 @@ auto main() -> int
         expect(constant<2_i == tree_depth_v<type_tree<A, type_tree<B>, C>>>);
 
         expect(constant<3_i == tree_depth_v<type_tree<A, type_tree<B, C>, D>>>);
-        expect(constant<3_i == tree_depth_v<type_tree<A, type_tree<B, C>, type_tree<D>>>>);
-        expect(constant<3_i == tree_depth_v<type_tree<A, type_tree<B, C>, type_tree<D, E>>>>);
-        expect(constant<3_i == tree_depth_v<type_tree<A, type_tree<B, C, F>, type_tree<D, E>>>>);
+        expect(constant<
+               3_i ==
+               tree_depth_v<type_tree<A, type_tree<B, C>, type_tree<D>>>>);
+        expect(constant<
+               3_i ==
+               tree_depth_v<type_tree<A, type_tree<B, C>, type_tree<D, E>>>>);
+        expect(constant<
+               3_i == tree_depth_v<
+                          type_tree<A, type_tree<B, C, F>, type_tree<D, E>>>>);
     };
 
     test("duplicate nodes in tree are detectable") = [] {
         static_assert(flatten_t<are_unique, type_tree<A>>::value);
         static_assert(flatten_t<are_unique, type_tree<A, B, C>>::value);
-        static_assert(flatten_t<are_unique, type_tree<A, type_tree<B, C, D>, E>>::value);
+        static_assert(
+            flatten_t<are_unique, type_tree<A, type_tree<B, C, D>, E>>::value);
 
         static_assert(not flatten_t<are_unique, type_tree<A, A>>::value);
         static_assert(not flatten_t<are_unique, type_tree<A, B, C, C>>::value);
-        static_assert(not flatten_t<are_unique, type_tree<A, type_tree<B, C, D, A>, E>>::value);
-        static_assert(not flatten_t<are_unique, type_tree<A, type_tree<B, C, D>, E, C>>::value);
+        static_assert(
+            not flatten_t<are_unique,
+                          type_tree<A, type_tree<B, C, D, A>, E>>::value);
+        static_assert(
+            not flatten_t<are_unique,
+                          type_tree<A, type_tree<B, C, D>, E, C>>::value);
     };
 
     test("check if tree contains node") = [] {
@@ -106,10 +120,14 @@ auto main() -> int
         static_assert(std::is_same_v<type_tree<A, type_tree<B, D, E>, C>, T4>);
 
         using T5 = T4::add_branch_t<E, F>;
-        static_assert(std::is_same_v<type_tree<A, type_tree<B, D, type_tree<E, F>>, C>, T5>);
+        static_assert(
+            std::is_same_v<type_tree<A, type_tree<B, D, type_tree<E, F>>, C>,
+                           T5>);
 
         using T6 = T5::add_branch_t<C, G>;
         static_assert(
-            std::is_same_v<type_tree<A, type_tree<B, D, type_tree<E, F>>, type_tree<C, G>>, T6>);
+            std::is_same_v<
+                type_tree<A, type_tree<B, D, type_tree<E, F>>, type_tree<C, G>>,
+                T6>);
     };
 }

@@ -1,8 +1,9 @@
 #include "turtle/orientation.hpp"
 
-#include "boost/ut.hpp"
-#include "test/util/within.hpp"
 #include "turtle/frame.hpp"
+#include "test/util/within.hpp"
+
+#include "boost/ut.hpp"
 
 #include <cmath>
 #include <numbers>
@@ -37,7 +38,8 @@ auto main() -> int
         expect(eq(axis, ori.axis()));
     };
 
-    test("orientation axis-angle constructible non-basis axis") = []<class T>() {
+    test(
+        "orientation axis-angle constructible non-basis axis") = []<class T>() {
         using B = turtle::frame<"B", T>;
         using C = turtle::frame<"C", T>;
 
@@ -61,7 +63,8 @@ auto main() -> int
         const auto ori1 = turtle::orientation<N, A>{angle, axis};
 
         test("orientation composable with same angle, axis") = [&] {
-            const auto ori2 = turtle::orientation<A, B>{angle, ori1.rotate(axis)};
+            const auto ori2 =
+                turtle::orientation<A, B>{angle, ori1.rotate(axis)};
 
             const auto ori12 = ori1 * ori2;
             expect(within<1e-12>(2. * angle, ori12.angle()));
@@ -69,7 +72,8 @@ auto main() -> int
         };
 
         test("orientation composable with same axis, inverse angle") = [&] {
-            const auto ori2 = turtle::orientation<A, B>{-angle, ori1.rotate(axis)};
+            const auto ori2 =
+                turtle::orientation<A, B>{-angle, ori1.rotate(axis)};
 
             const auto ori12 = ori1 * ori2;
 
@@ -82,12 +86,14 @@ auto main() -> int
             constexpr auto axis = N::vector{1., 0., 0.};
 
             const auto ori1 = turtle::orientation<N, A>{angle, axis};
-            const auto ori2 = turtle::orientation<A, B>{angle, A::vector{0., 1., 0.}};
+            const auto ori2 =
+                turtle::orientation<A, B>{angle, A::vector{0., 1., 0.}};
 
             const auto ori12 = ori1 * ori2;
 
             expect(within<1e-12>(2. * std::numbers::pi / 3., ori12.angle()));
-            expect(within<1e-12>(normalized(N::vector{1., 1., 1.}), ori12.axis()));
+            expect(
+                within<1e-12>(normalized(N::vector{1., 1., 1.}), ori12.axis()));
         };
     }
 }
