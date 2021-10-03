@@ -35,7 +35,7 @@ class quaternion {
         : data_{std::move(q0), std::move(q1), std::move(q2), std::move(q3)}
     {}
 
-    template <con::reference_frame_vector Vector>
+    template <kinematic::vector Vector>
     quaternion(T angle, Vector axis)
         : quaternion{std::cos(angle / T{2}),
                      axis.x() * std::sin(angle / T{2}),
@@ -48,7 +48,7 @@ class quaternion {
         }
     }
 
-    template <con::reference_frame_vector Vector>
+    template <kinematic::vector Vector>
     explicit constexpr quaternion(Vector v)
         : quaternion{T{}, std::move(v.x()), std::move(v.y()), std::move(v.z())}
     {}
@@ -113,14 +113,14 @@ class quaternion {
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
 };
 
-template <con::reference_frame_vector Vector>
+template <kinematic::vector Vector>
 quaternion(typename Vector::scalar_type a, const Vector& v)
     -> quaternion<typename Vector::scalar_type>;
 
-template <con::reference_frame_vector Vector>
+template <kinematic::vector Vector>
 quaternion(const Vector& v) -> quaternion<typename Vector::scalar_type>;
 
-template <con::reference_frame Frame>
+template <kinematic::frame Frame>
 constexpr auto rotate(const vector<Frame>& v,
                       const quaternion<typename Frame::scalar_type>& qr)
     -> vector<Frame>

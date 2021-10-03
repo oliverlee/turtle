@@ -15,10 +15,10 @@
 
 namespace turtle {
 
-template <con::reference_frame Frame>
+template <kinematic::frame Frame>
 class vector {
   public:
-    using reference_frame = Frame;
+    using frame = Frame;
     using scalar_type = typename Frame::scalar_type;
 
   private:
@@ -73,16 +73,16 @@ class vector {
     constexpr auto end() const& -> const_iterator { return data_.end(); }
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
 
-    template <con::reference_frame To>
+    template <kinematic::frame To>
     auto in(const orientation<Frame, To>& ori) const -> typename To::vector
     {
         return ori.rotate(*this);
     }
 
-    template <con::reference_frame To, con::world World>
+    template <kinematic::frame To, kinematic::world World>
     auto in(const World& world) const -> typename To::vector
     {
-        return world.template express<reference_frame, To>().rotate(*this);
+        return world.template express<frame, To>().rotate(*this);
     }
 
     template <class UnaryOp>

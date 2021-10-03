@@ -14,7 +14,7 @@
 
 namespace turtle {
 
-template <class FrameTree, con::orientation... Os>
+template <class FrameTree, kinematic::orientation... Os>
 requires std::conjunction_v<
     meta::is_specialization_of<FrameTree, meta::tree>,
     std::is_same<typename FrameTree::root,
@@ -157,7 +157,7 @@ struct orientation_printer {
 
 }  // namespace turtle
 
-template <turtle::con::world W>
+template <turtle::kinematic::world W>
 struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
 
     template <class Printer, class FormatContext, class From>
@@ -167,7 +167,7 @@ struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
     template <class Printer,
               class FormatContext,
               class From,
-              turtle::con::reference_frame To,
+              turtle::kinematic::frame To,
               class... Frames>
     auto print_tree(Printer&& printer,
                     const W& world,

@@ -11,7 +11,7 @@
 
 namespace turtle {
 
-template <con::reference_frame From, con::reference_frame To>
+template <kinematic::frame From, kinematic::frame To>
 requires std::same_as<typename From::scalar_type, typename To::scalar_type>
 class orientation {
   public:
@@ -63,7 +63,7 @@ class orientation {
     }
 
   private:
-    template <con::reference_frame C>
+    template <kinematic::frame C>
     friend constexpr auto
     operator*(const orientation& ori1, const orientation<To, C>& ori2)
         -> orientation<From, C>
