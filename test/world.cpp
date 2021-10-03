@@ -1,6 +1,7 @@
 #include "turtle/world.hpp"
 
 #include "turtle/frame.hpp"
+#include "turtle/m2.hpp"
 #include "turtle/orientation.hpp"
 #include "test/util/within.hpp"
 
@@ -16,6 +17,8 @@ auto main() -> int
     using turtle::world;
     using turtle::test::within;
 
+    namespace m2 = turtle::m2;
+
     test("world constructible - single chain") = [] {
         using N = frame<"N">;
         using A = frame<"A">;
@@ -23,11 +26,9 @@ auto main() -> int
         constexpr auto w = world{
             orientation<N, A>{},
         };
-        (void)w;
 
         using W = std::remove_cvref_t<decltype(w)>;
-        using turtle::meta::type_tree;
-        static_assert(std::is_same_v<type_tree<N, A>, W::frame_tree_type>);
+        static_assert(m2::tree<N, A>{} == W::tree{});
     };
 
     test("world constructible - simple chain") = [] {
@@ -43,10 +44,7 @@ auto main() -> int
         };
 
         using W = std::remove_cvref_t<decltype(w)>;
-        using turtle::meta::type_tree;
-        static_assert(
-            std::is_same_v<type_tree<N, type_tree<A, type_tree<B, C>>>,
-                           W::frame_tree_type>);
+        static_assert(m2::tree<N, m2::tree<A, m2::tree<B, C>>>{} == W::tree{});
     };
 
     test("world constructible - simple tree") = [] {
@@ -62,9 +60,7 @@ auto main() -> int
         };
 
         using W = std::remove_cvref_t<decltype(w)>;
-        using turtle::meta::type_tree;
-        static_assert(std::is_same_v<type_tree<N, type_tree<A, B>, C>,
-                                     W::frame_tree_type>);
+        static_assert(m2::tree<N, m2::tree<A, B>, C>{} == W::tree{});
     };
 
     test("world access orientation") = [] {

@@ -106,6 +106,14 @@ struct tree {
     template <class Node>
     static constexpr auto contains_v = contains<Node>::value;
 
+    template <class Node>
+    using path_to_t = std::enable_if_t<contains_v<Node>, path_to<tree, Node>>;
+
+    template <class From, class To>
+    using add_branch_t =
+        std::enable_if_t<contains_v<From> && not contains_v<To>,
+                         insert<tree, From, To>>;
+
     friend constexpr auto operator==(tree, tree) noexcept -> bool
     {
         return true;
