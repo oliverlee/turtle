@@ -1,6 +1,5 @@
 #pragma once
 
-#include "m2.hpp"
 #include "meta.hpp"
 
 #include <algorithm>
@@ -80,7 +79,7 @@ concept orientation = is_orientation_v<T>;
 
 template <class FrameTree, con::orientation... Os>
 requires std::conjunction_v<
-    meta::is_specialization_of<FrameTree, m2::tree>,
+    meta::is_specialization_of<FrameTree, meta::tree>,
     std::is_same<typename FrameTree::root,
                  typename meta::first_t<Os...>::from_type>,
     std::conjunction<std::is_same<typename FrameTree::root::scalar_type,

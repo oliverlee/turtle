@@ -1,7 +1,5 @@
 #include "turtle/meta.hpp"
 
-#include "turtle/m2.hpp"
-
 #include "boost/ut.hpp"
 
 #include <type_traits>
@@ -20,16 +18,8 @@ constexpr auto operator==(list<Args...>, list<Args...>) noexcept -> bool
 auto main() -> int
 {
     using namespace boost::ut;
-    using turtle::meta::are_unique;
-    using turtle::meta::are_unique_v;
-    using turtle::meta::flatten_t;
-    using turtle::meta::list_size_v;
-    using turtle::meta::path_t;
-    using turtle::meta::tree_depth_v;
-    using turtle::meta::type_list;
-    using turtle::meta::type_tree;
 
-    namespace m2 = turtle::m2;
+    namespace meta = turtle::meta;
 
     struct A {};
     struct B {};
@@ -40,100 +30,24 @@ auto main() -> int
     struct G {};
 
     test("flatten") = [] {
-        static_assert(std::is_same_v<type_list<A, A>,
-                                     flatten_t<type_list, type_tree<A, A>>>);
-
-        static_assert(
-            std::is_same_v<
-                type_list<A, B, D, E, C>,
-                flatten_t<type_list, type_tree<A, type_tree<B, D, E>, C>>>);
-
-        static_assert(metal::list<A, B>{} == m2::flatten<m2::tree<A, B>>{});
+        static_assert(metal::list<A, B>{} == meta::flatten<meta::tree<A, B>>{});
         static_assert(metal::list<A, B, D, E, C>{} ==
-                      m2::flatten<m2::tree<A, m2::tree<B, D, E>, C>>{});
-    };
-
-    test("unique types") = [] {
-        static_assert(are_unique_v<>);
-        static_assert(are_unique_v<A, B>);
-        static_assert(not are_unique_v<A, A>);
-    };
-
-    test("type list size") = [] {
-        expect(constant<0_i == list_size_v<type_list<>>>);
-        expect(constant<1_i == list_size_v<type_list<A>>>);
-        expect(constant<2_i == list_size_v<type_list<A, A>>>);
-        expect(constant<2_i == list_size_v<type_list<A, B>>>);
+                      meta::flatten<meta::tree<A, meta::tree<B, D, E>, C>>{});
     };
 
     test("type tree node path") = [] {
-        using Tree = type_tree<A, type_tree<B, D, E>, C>;
+        using Tree2 = meta::tree<A, meta::tree<B, D, E>, C>;
 
-        static_assert(std::is_same_v<type_list<A>, path_t<A, Tree>>);
-        static_assert(std::is_same_v<type_list<A, B>, path_t<B, Tree>>);
-        static_assert(std::is_same_v<type_list<A, C>, path_t<C, Tree>>);
-        static_assert(std::is_same_v<type_list<A, B, D>, path_t<D, Tree>>);
-        static_assert(std::is_same_v<type_list<A, B, E>, path_t<E, Tree>>);
-        static_assert(std::is_same_v<type_list<>, path_t<F, Tree>>);
-
-        using Tree2 = m2::tree<A, m2::tree<B, D, E>, C>;
-
-        static_assert(metal::list<A>{} == m2::path_to<Tree2, A>{});
-        static_assert(metal::list<A, C>{} == m2::path_to<Tree2, C>{});
-        static_assert(metal::list<A, B>{} == m2::path_to<Tree2, B>{});
-        static_assert(metal::list<A, B, D>{} == m2::path_to<Tree2, D>{});
-        static_assert(metal::list<A, B, E>{} == m2::path_to<Tree2, E>{});
-        static_assert(metal::list<>{} == m2::path_to<Tree2, F>{});
-    };
-
-    test("type tree depth") = [] {
-        expect(constant<1_i == tree_depth_v<type_tree<A>>>);
-
-        expect(constant<2_i == tree_depth_v<type_tree<A, B>>>);
-        expect(constant<2_i == tree_depth_v<type_tree<A, B, C>>>);
-        expect(constant<2_i == tree_depth_v<type_tree<A, type_tree<B>>>>);
-        expect(constant<2_i == tree_depth_v<type_tree<A, type_tree<B>, C>>>);
-
-        expect(constant<3_i == tree_depth_v<type_tree<A, type_tree<B, C>, D>>>);
-        expect(constant<
-               3_i ==
-               tree_depth_v<type_tree<A, type_tree<B, C>, type_tree<D>>>>);
-        expect(constant<
-               3_i ==
-               tree_depth_v<type_tree<A, type_tree<B, C>, type_tree<D, E>>>>);
-        expect(constant<
-               3_i == tree_depth_v<
-                          type_tree<A, type_tree<B, C, F>, type_tree<D, E>>>>);
-    };
-
-    test("duplicate nodes in tree are detectable") = [] {
-        static_assert(flatten_t<are_unique, type_tree<A>>::value);
-        static_assert(flatten_t<are_unique, type_tree<A, B, C>>::value);
-        static_assert(
-            flatten_t<are_unique, type_tree<A, type_tree<B, C, D>, E>>::value);
-
-        static_assert(not flatten_t<are_unique, type_tree<A, A>>::value);
-        static_assert(not flatten_t<are_unique, type_tree<A, B, C, C>>::value);
-        static_assert(
-            not flatten_t<are_unique,
-                          type_tree<A, type_tree<B, C, D, A>, E>>::value);
-        static_assert(
-            not flatten_t<are_unique,
-                          type_tree<A, type_tree<B, C, D>, E, C>>::value);
+        static_assert(metal::list<A>{} == meta::path_to<Tree2, A>{});
+        static_assert(metal::list<A, C>{} == meta::path_to<Tree2, C>{});
+        static_assert(metal::list<A, B>{} == meta::path_to<Tree2, B>{});
+        static_assert(metal::list<A, B, D>{} == meta::path_to<Tree2, D>{});
+        static_assert(metal::list<A, B, E>{} == meta::path_to<Tree2, E>{});
+        static_assert(metal::list<>{} == meta::path_to<Tree2, F>{});
     };
 
     test("check if tree contains node") = [] {
-        using Tree = type_tree<A, type_tree<B, D, E>, C>;
-
-        static_assert(Tree::contains_v<A>);
-        static_assert(Tree::contains_v<B>);
-        static_assert(Tree::contains_v<C>);
-        static_assert(Tree::contains_v<D>);
-        static_assert(Tree::contains_v<E>);
-
-        static_assert(not Tree::contains_v<F>);
-
-        using Tree2 = m2::tree<A, m2::tree<B, D, E>, C>;
+        using Tree2 = meta::tree<A, meta::tree<B, D, E>, C>;
 
         static_assert(Tree2::contains_v<A>);
         static_assert(Tree2::contains_v<B>);
@@ -145,47 +59,38 @@ auto main() -> int
     };
 
     test("add branches to a tree") = [] {
-        using T1 = type_tree<A>::add_branch_t<A, B>;
-        static_assert(std::is_same_v<type_tree<A, B>, T1>);
-
-        using T2 = T1::add_branch_t<A, C>;
-        static_assert(std::is_same_v<type_tree<A, B, C>, T2>);
-
-        using T3 = T2::add_branch_t<B, D>;
-        static_assert(std::is_same_v<type_tree<A, type_tree<B, D>, C>, T3>);
-
-        using T4 = T3::add_branch_t<B, E>;
-        static_assert(std::is_same_v<type_tree<A, type_tree<B, D, E>, C>, T4>);
-
-        using T5 = T4::add_branch_t<E, F>;
         static_assert(
-            std::is_same_v<type_tree<A, type_tree<B, D, type_tree<E, F>>, C>,
-                           T5>);
-
-        using T6 = T5::add_branch_t<C, G>;
-        static_assert(
-            std::is_same_v<
-                type_tree<A, type_tree<B, D, type_tree<E, F>>, type_tree<C, G>>,
-                T6>);
-
-        static_assert(m2::tree<A, B>{} == m2::insert<m2::tree<A>, A, B>{});
+            meta::tree<A, B>{} == meta::insert<meta::tree<A>, A, B>{});
 
         static_assert(
-            m2::tree<A, B, C>{} == m2::insert<m2::tree<A, B>, A, C>{});
+            meta::tree<A, B, C>{} == meta::insert<meta::tree<A, B>, A, C>{});
 
-        static_assert(m2::tree<A, m2::tree<B, D>, C>{} ==
-                      m2::insert<m2::tree<A, B, C>, B, D>{});
+        static_assert(meta::tree<A, meta::tree<B, D>, C>{} ==
+                      meta::insert<meta::tree<A, B, C>, B, D>{});
 
-        static_assert(m2::tree<A, m2::tree<B, m2::tree<D, E>>, C>{} ==
-                      m2::insert<m2::tree<A, m2::tree<B, D>, C>, D, E>{});
+        static_assert(meta::tree<A, meta::tree<B, meta::tree<D, E>>, C>{} ==
+                      meta::insert<meta::tree<A, meta::tree<B, D>, C>, D, E>{});
 
-        static_assert(m2::tree<A, m2::tree<B, D, E>, C>{} ==
-                      m2::insert<m2::tree<A, m2::tree<B, D>, C>, B, E>{});
+        static_assert(meta::tree<A, meta::tree<B, D, E>, C>{} ==
+                      meta::insert<meta::tree<A, meta::tree<B, D>, C>, B, E>{});
 
-        static_assert(m2::tree<A, m2::tree<B, D, m2::tree<E, F>>, C>{} ==
-                      m2::insert<m2::tree<A, m2::tree<B, D, E>, C>, E, F>{});
+        static_assert(
+            meta::tree<A, meta::tree<B, D, meta::tree<E, F>>, C>{} ==
+            meta::insert<meta::tree<A, meta::tree<B, D, E>, C>, E, F>{});
 
-        static_assert(m2::tree<A, m2::tree<B, D, E>, m2::tree<C, G>>{} ==
-                      m2::insert<m2::tree<A, m2::tree<B, D, E>, C>, C, G>{});
+        static_assert(
+            meta::tree<A, meta::tree<B, D, E>, meta::tree<C, G>>{} ==
+            meta::insert<meta::tree<A, meta::tree<B, D, E>, C>, C, G>{});
+    };
+
+    test("can't add branches to tree if frame is duplicated") = [] {
+        using T = meta::tree<A, B>;
+
+        auto const new_tree = []<class From, class To>(From, To)
+            -> T::template add_branch_t<From, To> { return {}; };
+
+        static_assert(not std::is_invocable_v<decltype(new_tree), A, B>);
+
+        static_assert(std::is_invocable_v<decltype(new_tree), B, C>);
     };
 }

@@ -11,7 +11,6 @@ cc_library(
     hdrs = [
         "include/turtle/frame.hpp",
         "include/turtle/fwd.hpp",
-        "include/turtle/m2.hpp",
         "include/turtle/meta.hpp",
         "include/turtle/orientation.hpp",
         "include/turtle/quaternion.hpp",

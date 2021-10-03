@@ -2,9 +2,7 @@
 
 #include "metal.hpp"
 
-#include <cstddef>
 #include <type_traits>
-#include <utility>
 
 namespace turtle::meta {
 
@@ -22,38 +20,6 @@ inline constexpr auto is_specialization_of_v =
     is_specialization_of<T, Primary>::value;
 ///@}
 
-/// @brief Returns the type with the maximum value
-///@{
-template <class...>
-struct max;
-
-template <class V1>
-struct max<V1> : V1 {};
-
-template <class V1, class V2, class... Vn>
-struct max<V1, V2, Vn...>
-    : std::conditional_t<(V1::value > V2::value),
-                         max<V1, Vn...>,
-                         max<V2, Vn...>> {};
-
-template <class... Vn>
-inline constexpr auto max_v = max<Vn...>::value;
-///@}
-
-/// @brief Obtains the number of elements in a type list
-///@{
-template <class TypeList>
-struct list_size;
-
-template <template <class...> class List, class... Types>
-struct list_size<List<Types...>> {
-    static constexpr std::size_t value = sizeof...(Types);
-};
-
-template <class TypeList>
-inline constexpr auto list_size_v = list_size<TypeList>::value;
-///@}
-
 /// @brief Obtains the first type in a parameter pack
 /// @{
 template <class...>
@@ -68,261 +34,118 @@ template <class... Ts>
 using first_t = typename first<Ts...>::type;
 /// @}
 
-/// @brief Concatenates multiple type lists
-///@{
-template <class List1, class... Lists>
-struct concat;
+// Forward declare tree metatype for the metafunctions below
+template <class R, class... Bs>
+struct tree;
 
-template <template <class...> class List, class... Types1, class... Types2>
-struct concat<List<Types1...>, List<Types2...>> {
-    using type = List<Types1..., Types2...>;
+/// @brief Helper for a recursive flatten metafunction
+template <class Tree>
+struct flatten_helper;
+
+/// @brief Flatten a tree into a metal::list
+template <class Tree>
+using flatten =
+    metal::join<metal::list<typename Tree::root>,
+                metal::flatten<metal::transform<metal::lazy<flatten_helper>,
+                                                typename Tree::branches>>>;
+
+template <class Leaf>
+struct flatten_helper {
+    using type = metal::list<Leaf>;
+};
+template <class R, class... Bs>
+struct flatten_helper<tree<R, Bs...>> {
+    using type = flatten<tree<R, Bs...>>;
 };
 
-template <class List1, class List2, class... Lists>
-struct concat<List1, List2, Lists...>
-    : concat<typename concat<List1, List2>::type, Lists...> {};
+/// @brief Helper for a recursive path_to metafunction
+template <class Tree, class Node>
+struct path_to_helper;
 
-template <class List1>
-struct concat<List1> {
-    using type = List1;
+/// @brief Obtain the path from root to node
+/// @return List from root to node if node is in the tree, otherwise an empty
+/// list.
+template <class Tree, class Node>
+using path_to = metal::if_<
+    metal::contains<flatten<Tree>, Node>,
+    metal::join<metal::list<typename Tree::root>,
+                metal::if_<metal::same<typename Tree::root, Node>,
+                           metal::list<>,
+                           metal::flatten<metal::transform<
+                               metal::bind<metal::lazy<path_to_helper>,
+                                           metal::_1,
+                                           metal::always<Node>>,
+                               typename Tree::branches>>>>,
+    metal::list<>>;
+
+template <class R, class... Bs, class N>
+struct path_to_helper<tree<R, Bs...>, N> {
+    using type = path_to<tree<R, Bs...>, N>;
 };
-
-template <class... Lists>
-using concat_t = typename concat<Lists...>::type;
-///@}
-
-/// @brief Flatten a type tree to a type list
-///@{
-template <class List, class Tree>
-struct flatten;
-
-template <template <class...> class List, class Tree>
-using flatten_t = typename flatten<List<>, Tree>::type;
-
-template <template <class...> class List,
-          class... Rs,
-          template <class...>
-          class Tree,
-          class Parent,
-          class... Children>
-struct flatten<List<Rs...>, Tree<Parent, Children...>>
-    : concat<List<Rs..., Parent>, flatten_t<List, Children>...> {};
-
-template <template <class...> class List, class... Rs, class Leaf>
-struct flatten<List<Rs...>, Leaf> {
-    using type = List<Rs..., Leaf>;
-};
-///@}
-
-/// @brief Insert a type into a type tree
-///@{
-template <class Tree, class From, class To, class = void>
-struct tree_insert;
-
-template <template <class...> class Tree,
-          class... Children,
-          class From,
-          class To>
-struct tree_insert<Tree<From, Children...>, From, To> {
-    using type = Tree<From, Children..., To>;
-};
-
-template <template <class...> class Tree,
-          class Parent,
-          class... Children,
-          class From,
-          class To>
-struct tree_insert<
-    Tree<Parent, Children...>,
-    From,
-    To,
-    std::enable_if_t<std::disjunction_v<std::is_same<From, Children>...>>> {
+template <class Leaf, class N>
+struct path_to_helper {
     using type =
-        Tree<Parent,
-             std::conditional_t<std::is_same_v<From, Children>,
-                                Tree<From, To>,
-                                Children>...>;
+        metal::if_<metal::same<Leaf, N>, metal::list<N>, metal::list<>>;
 };
 
-namespace detail {
-
-template <class Tree, class From, class To, class = void>
-struct try_subtree_insert {
-    using type = Tree;
-};
-
+/// @brief Helper for a recursive insert metafunction
 template <class Tree, class From, class To>
-struct try_subtree_insert<Tree,
-                          From,
-                          To,
-                          std::enable_if_t<Tree::template contains_v<From>>> {
-    using type = typename tree_insert<Tree, From, To>::type;
-};
+struct insert_helper;
 
-}  // namespace detail
-
-template <template <class...> class Tree,
-          class Parent,
-          class... Children,
-          class From,
-          class To>
-struct tree_insert<
-    Tree<Parent, Children...>,
-    From,
-    To,
-    std::enable_if_t<
-        not std::is_same_v<Parent, From> &&
-        std::disjunction_v<is_specialization_of<Children, Tree>...> &&
-        not std::disjunction_v<std::is_same<From, Children>...>>> {
-    using type =
-        Tree<Parent,
-             std::conditional_t<
-                 is_specialization_of_v<Children, Tree>,
-                 typename detail::try_subtree_insert<Children, From, To>::type,
-                 Children>...>;
-};
-
+/// @brief Insert a branch into a tree
+/// @return Tree with new branch inserted on success, the same tree on failure.
 template <class Tree, class From, class To>
-using tree_insert_t = typename tree_insert<Tree, From, To>::type;
+using insert = metal::if_<
+    metal::and_<metal::contains<flatten<Tree>, From>,
+                metal::not_<metal::contains<flatten<Tree>, To>>>,
+    metal::apply<
+        metal::as_lambda<Tree>,
+        metal::if_<metal::same<From, typename Tree::root>,
+                   metal::append<metal::as_list<Tree>, To>,
+                   metal::transform<metal::bind<metal::lazy<insert_helper>,
+                                                metal::_1,
+                                                metal::always<From>,
+                                                metal::always<To>>,
+                                    metal::as_list<Tree>>>>,
+    Tree>;
 
-///@}
-
-/// @brief A container for types
-template <class... Types>
-struct type_list {
-    using type = type_list;
+template <class R, class... Bs, class From, class To>
+struct insert_helper<tree<R, Bs...>, From, To> {
+    using type = insert<tree<R, Bs...>, From, To>;
 };
-template <class... Types>
-using type_list_t = typename type_list<Types...>::type;
-
-/// @brief Associates an index with a type
-template <std::size_t I, class T>
-struct indexed_type : std::type_identity<T> {};
-
-/// @brief A class that inherits from all provided types
-template <class... Types>
-struct inherit : Types... {};
-
-/// @brief Determine if all types are unique
-///
-///@{
-namespace detail {
-template <class, class, class = void>
-struct are_unique : std::false_type {};
-
-template <std::size_t... Is, class... Ts>
-struct are_unique<
-    std::index_sequence<Is...>,
-    type_list<Ts...>,
-    std::void_t<decltype(
-
-        static_cast<std::type_identity<Ts>>(inherit<indexed_type<Is, Ts>...>{})
-
-            )...>> : std::true_type {};
-}  // namespace detail
-
-template <class... Types>
-struct are_unique
-    : detail::are_unique<std::index_sequence_for<Types...>,
-                         type_list<Types...>> {};
-
-template <class... Types>
-inline constexpr auto are_unique_v = are_unique<Types...>::value;
-///@}
-
-/// @brief Appends a type to a list
-///@{
-//
-template <class List, class T>
-struct append;
-
-template <template <class...> class List, class... Rs, class T>
-struct append<List<Rs...>, T> {
-    using type = List<Rs..., T>;
+template <class Leaf, class From, class To>
+struct insert_helper {
+    using type = metal::if_<metal::same<Leaf, From>, tree<Leaf, To>, Leaf>;
 };
 
-template <class List, class T>
-using append_t = typename append<List, T>::type;
-///@}
+/// @brief A metatype where the first element is the root and the rest are
+/// branches
+template <class Root, class... Branches>
+struct tree {
+    using type = tree;
 
-/// @brief A container for types where the first is a parent and the rest are
-///     children
-template <class Parent, class... Children>
-struct type_tree {
-    using type = type_tree;
+    using root = Root;
+    using branches = metal::list<Branches...>;
 
-    using parent_type = Parent;
-    using children_types = type_list<Children...>;
+    template <class Node>
+    using contains =
+        std::is_same<metal::true_, metal::contains<flatten<type>, Node>>;
 
-    template <class T>
-    static constexpr auto contains_v =
-        std::negation<append_t<flatten_t<are_unique, type_tree>, T>>::value;
+    template <class Node>
+    static constexpr auto contains_v = contains<Node>::value;
+
+    template <class Node>
+    using path_to_t = std::enable_if_t<contains_v<Node>, path_to<tree, Node>>;
 
     template <class From, class To>
     using add_branch_t =
         std::enable_if_t<contains_v<From> && not contains_v<To>,
-                         tree_insert_t<type_tree, From, To>>;
-};
+                         insert<tree, From, To>>;
 
-template <class Parent, class... Children>
-using type_tree_t = typename type_tree<Parent, Children...>::type;
-
-/// @brief Returns the depth of a type_tree type
-///@{
-template <class T>
-struct tree_depth {
-    static constexpr std::size_t value = 1;
+    friend constexpr auto operator==(tree, tree) noexcept -> bool
+    {
+        return true;
+    }
 };
-template <class Parent>
-struct tree_depth<type_tree<Parent>> {
-    static constexpr std::size_t value = 1;
-};
-template <class Parent, class Child1, class... Children>
-struct tree_depth<type_tree<Parent, Child1, Children...>> {
-    static constexpr std::size_t value =
-        1 + max_v<tree_depth<Child1>, tree_depth<Children>...>;
-};
-template <class T>
-inline constexpr auto tree_depth_v = tree_depth<T>::value;
-///@}
-
-/// @brief Obtains the path from the tree root to a node
-///@{
-template <class Node, class Tree, class = void>
-struct path {
-    using type = type_list<>;
-};
-
-template <class Node, class Tree>
-using path_t = typename path<Node, Tree>::type;
-
-template <class Node, class... Children>
-struct path<Node, type_tree<Node, Children...>> {
-    using type = type_list<Node>;
-};
-
-template <class Node, class Parent, class... Children>
-struct path<
-    Node,
-    type_tree<Parent, Children...>,
-    std::enable_if_t<std::disjunction_v<std::is_same<Node, Children>...>>> {
-    using type = type_list<Parent, Node>;
-};
-
-template <class Node, class Parent, class... Children>
-struct path<
-    Node,
-    type_tree<Parent, Children...>,
-    std::enable_if_t<
-        not std::is_same_v<Node, Parent> &&
-        std::disjunction_v<is_specialization_of<Children, type_tree>...> &&
-        not std::disjunction_v<std::is_same<Node, Children>...>>> {
-    using subtree_path = concat_t<path_t<Node, Children>...>;
-    using type =
-        std::conditional_t<list_size_v<subtree_path> == 0,
-                           type_list<>,
-                           concat_t<type_list<Parent>, subtree_path>>;
-};
-///@}
 
 }  // namespace turtle::meta

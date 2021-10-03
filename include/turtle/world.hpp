@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fwd.hpp"
-#include "m2.hpp"
 #include "meta.hpp"
 #include "orientation.hpp"
 
@@ -17,7 +16,7 @@ namespace turtle {
 
 template <class FrameTree, con::orientation... Os>
 requires std::conjunction_v<
-    meta::is_specialization_of<FrameTree, m2::tree>,
+    meta::is_specialization_of<FrameTree, meta::tree>,
     std::is_same<typename FrameTree::root,
                  typename meta::first_t<Os...>::from_type>,
     std::conjunction<std::is_same<typename FrameTree::root::scalar_type,
@@ -84,16 +83,16 @@ struct make_tree_impl;
 
 template <class Root, class First, class... Next>
 struct make_tree_impl<orientation<Root, First>, Next...>
-    : make_tree_impl<m2::tree<Root, First>, Next...> {};
+    : make_tree_impl<meta::tree<Root, First>, Next...> {};
 
 template <class... Nodes, class A, class B, class... Next>
-struct make_tree_impl<m2::tree<Nodes...>, orientation<A, B>, Next...>
-    : make_tree_impl<typename m2::tree<Nodes...>::template add_branch_t<A, B>,
+struct make_tree_impl<meta::tree<Nodes...>, orientation<A, B>, Next...>
+    : make_tree_impl<typename meta::tree<Nodes...>::template add_branch_t<A, B>,
                      Next...> {};
 
 template <class... Nodes>
-struct make_tree_impl<m2::tree<Nodes...>> {
-    using type = m2::tree<Nodes...>;
+struct make_tree_impl<meta::tree<Nodes...>> {
+    using type = meta::tree<Nodes...>;
 };
 
 template <class... Ts>
@@ -186,11 +185,12 @@ struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
               class To,
               class... SubFrames,
               class... Frames>
-    auto print_tree(Printer&& printer,
-                    const W& world,
-                    FormatContext& ctx,
-                    From,
-                    metal::list<turtle::m2::tree<To, SubFrames...>, Frames...>)
+    auto
+    print_tree(Printer&& printer,
+               const W& world,
+               FormatContext& ctx,
+               From,
+               metal::list<turtle::meta::tree<To, SubFrames...>, Frames...>)
     {
         const auto last = sizeof...(Frames) == 0;
         printer(world, ctx, From{}, To{}, last);
