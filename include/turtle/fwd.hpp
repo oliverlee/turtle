@@ -15,8 +15,8 @@ using DefaultScalar = double;
 namespace detail {
 
 template <std::size_t N>
-struct Descriptor {
-    constexpr Descriptor(const char (&str)[N])
+struct descriptor {
+    constexpr descriptor(const char (&str)[N])
     {
         std::copy_n(str, N, name.data());
     }
@@ -26,12 +26,12 @@ struct Descriptor {
 
 }  // namespace detail
 
-template <detail::Descriptor Name, class T>
+template <detail::descriptor Name, class T>
 struct frame;
 
 template <class, class = void>
 struct is_frame : std::false_type {};
-template <detail::Descriptor Name, class T>
+template <detail::descriptor Name, class T>
 struct is_frame<frame<Name, T>> : std::true_type {};
 template <class T>
 inline constexpr bool is_frame_v = is_frame<T>::value;
@@ -62,7 +62,7 @@ template <class T>
 class quaternion;
 
 template <kinematic::frame From, kinematic::frame To>
-requires std::same_as<typename From::scalar_type, typename To::scalar_type>
+requires std::same_as<typename From::scalar, typename To::scalar>
 class orientation;
 
 template <class T>
@@ -81,9 +81,9 @@ template <class FrameTree, kinematic::orientation... Os>
 requires std::conjunction_v<
     meta::is_specialization_of<FrameTree, meta::tree>,
     std::is_same<typename FrameTree::root,
-                 typename meta::first_t<Os...>::from_type>,
-    std::conjunction<std::is_same<typename FrameTree::root::scalar_type,
-                                  typename Os::scalar_type>...>>
+                 typename meta::first_t<Os...>::source_frame>,
+    std::conjunction<
+        std::is_same<typename FrameTree::root::scalar, typename Os::scalar>...>>
 class world;
 
 template <class T>

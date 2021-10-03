@@ -18,14 +18,14 @@ template <class FrameTree, kinematic::orientation... Os>
 requires std::conjunction_v<
     meta::is_specialization_of<FrameTree, meta::tree>,
     std::is_same<typename FrameTree::root,
-                 typename meta::first_t<Os...>::from_type>,
-    std::conjunction<std::is_same<typename FrameTree::root::scalar_type,
-                                  typename Os::scalar_type>...>>
+                 typename meta::first_t<Os...>::source_frame>,
+    std::conjunction<
+        std::is_same<typename FrameTree::root::scalar, typename Os::scalar>...>>
 class world : Os... {
   public:
     using tree = FrameTree;
     using root = typename FrameTree::root;
-    using scalar_type = typename root::scalar_type;
+    using scalar = typename root::scalar;
 
     template <class... Args>
     constexpr world(Args&&... args) : Os(std::forward<Args>(args))...
@@ -158,7 +158,7 @@ struct orientation_printer {
 }  // namespace turtle
 
 template <turtle::kinematic::world W>
-struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
+struct fmt::formatter<W> : fmt::formatter<typename W::scalar> {
 
     template <class Printer, class FormatContext, class From>
     auto print_tree(Printer&&, const W&, FormatContext&, From, metal::list<>)
