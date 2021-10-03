@@ -4,10 +4,11 @@
 #include "vector.hpp"
 #include "vector_ops.hpp"
 
+#include "fmt/format.h"
+
 #include <array>
 #include <cassert>
 #include <cmath>
-#include <fmt/format.h>
 #include <numeric>
 #include <utility>
 
@@ -42,7 +43,8 @@ class quaternion {
                      axis.z() * std::sin(angle / T{2})}
     {
         if (angle != T{}) {
-            assert(MAX_NORMALIZED_ULP_DIFF >= util::ulp_diff(T{1}, dot_product(axis, axis)));
+            assert(MAX_NORMALIZED_ULP_DIFF >=
+                   util::ulp_diff(T{1}, dot_product(axis, axis)));
         }
     }
 
@@ -51,14 +53,18 @@ class quaternion {
         : quaternion{T{}, std::move(v.x()), std::move(v.y()), std::move(v.z())}
     {}
 
-    constexpr auto conjugate() const -> quaternion { return {w(), -x(), -y(), -z()}; };
+    constexpr auto conjugate() const -> quaternion
+    {
+        return {w(), -x(), -y(), -z()};
+    };
 
     constexpr auto squared_magnitude() const -> T
     {
         return std::inner_product(cbegin(), cend(), cbegin(), T{});
     }
 
-    friend constexpr auto operator*(const quaternion& q, const quaternion& p) -> quaternion
+    friend constexpr auto operator*(const quaternion& q, const quaternion& p)
+        -> quaternion
     {
         // https://en.wikipedia.org/wiki/Quaternion#Hamilton_product
         return {q.w() * p.w() - q.x() * p.x() - q.y() * p.y() - q.z() * p.z(),
@@ -67,23 +73,36 @@ class quaternion {
                 q.w() * p.z() + q.z() * p.w() + q.x() * p.y() - q.y() * p.x()};
     }
 
-    friend constexpr auto operator==(const quaternion&, const quaternion&) -> bool = default;
+    friend constexpr auto operator==(const quaternion&, const quaternion&)
+        -> bool = default;
 
     constexpr auto w() & -> scalar_type& { return std::get<0>(data_); }
     constexpr auto w() && -> scalar_type&& { return std::get<0>(data_); }
-    constexpr auto w() const& -> const scalar_type& { return std::get<0>(data_); }
+    constexpr auto w() const& -> const scalar_type&
+    {
+        return std::get<0>(data_);
+    }
 
     constexpr auto x() & -> scalar_type& { return std::get<1>(data_); }
     constexpr auto x() && -> scalar_type&& { return std::get<1>(data_); }
-    constexpr auto x() const& -> const scalar_type& { return std::get<1>(data_); }
+    constexpr auto x() const& -> const scalar_type&
+    {
+        return std::get<1>(data_);
+    }
 
     constexpr auto y() & -> scalar_type& { return std::get<2>(data_); }
     constexpr auto y() && -> scalar_type&& { return std::get<2>(data_); }
-    constexpr auto y() const& -> const scalar_type& { return std::get<2>(data_); }
+    constexpr auto y() const& -> const scalar_type&
+    {
+        return std::get<2>(data_);
+    }
 
     constexpr auto z() & -> scalar_type& { return std::get<3>(data_); }
     constexpr auto z() && -> scalar_type&& { return std::get<3>(data_); }
-    constexpr auto z() const& -> const scalar_type& { return std::get<3>(data_); }
+    constexpr auto z() const& -> const scalar_type&
+    {
+        return std::get<3>(data_);
+    }
 
     constexpr auto begin() & -> iterator { return data_.begin(); }
     constexpr auto begin() const& -> const_iterator { return data_.begin(); }
@@ -102,11 +121,13 @@ template <con::reference_frame_vector Vector>
 quaternion(const Vector& v) -> quaternion<typename Vector::scalar_type>;
 
 template <con::reference_frame Frame>
-constexpr auto rotate(const vector<Frame>& v, const quaternion<typename Frame::scalar_type>& qr)
+constexpr auto rotate(const vector<Frame>& v,
+                      const quaternion<typename Frame::scalar_type>& qr)
     -> vector<Frame>
 {
     using T = typename Frame::scalar_type;
-    assert(MAX_NORMALIZED_ULP_DIFF >= util::ulp_diff(T{1}, qr.squared_magnitude()));
+    assert(MAX_NORMALIZED_ULP_DIFF >=
+           util::ulp_diff(T{1}, qr.squared_magnitude()));
 
     // https://en.wikipedia.org/wiki/Rotation_(mathematics)#Quaternions
     auto const qo = qr * quaternion{v} * qr.conjugate();

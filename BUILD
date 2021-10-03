@@ -24,6 +24,6 @@ cc_library(
     ],
     copts = PROJECT_DEFAULT_COPTS,
     strip_include_prefix = "include",
-    deps = ["@fmt"] + PROJECT_LLVM_WORKAROUND_DEPS,
+    deps = ["@fmt", "@metal"] + PROJECT_LLVM_WORKAROUND_DEPS,
     visibility = ["//visibility:public"],
 )

@@ -1,9 +1,10 @@
 #include "turtle/vector.hpp"
 
-#include "boost/ut.hpp"
-#include "test/util/within.hpp"
 #include "turtle/frame.hpp"
 #include "turtle/orientation.hpp"
+#include "test/util/within.hpp"
+
+#include "boost/ut.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -45,7 +46,8 @@ void test_disabled_cross_frame_operation()
     constexpr auto v = turtle::vector<N>{};
     constexpr auto u = turtle::vector<A>{};
 
-    static_assert(not std::is_invocable_v<std::plus<>, decltype(v), decltype(u)>);
+    static_assert(
+        not std::is_invocable_v<std::plus<>, decltype(v), decltype(u)>);
 };
 
 void test_vector_trait()
@@ -208,7 +210,8 @@ auto main() -> int
         using A = turtle::frame<"A">;
 
         constexpr auto v = M::vector{1., 2., 3.};
-        const auto ori = turtle::orientation<M, A>{pi / 2., M::vector{1., 0., 0.}};
+        const auto ori =
+            turtle::orientation<M, A>{pi / 2., M::vector{1., 0., 0.}};
 
         expect(within<1e-9>(A::vector{1., 3., -2.}, v.in<A>(ori)));
     };

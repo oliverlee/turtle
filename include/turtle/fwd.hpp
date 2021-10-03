@@ -16,7 +16,10 @@ namespace detail {
 
 template <std::size_t N>
 struct Descriptor {
-    constexpr Descriptor(const char (&str)[N]) { std::copy_n(str, N, name.data()); }
+    constexpr Descriptor(const char (&str)[N])
+    {
+        std::copy_n(str, N, name.data());
+    }
 
     std::array<char, N> name{};
 };
@@ -76,12 +79,12 @@ concept orientation = is_orientation_v<T>;
 
 template <class FrameTree, con::orientation... Os>
 requires std::conjunction_v<
-    meta::is_specialization_of<FrameTree, meta::type_tree>,
-    std::is_same<typename FrameTree::parent_type, typename meta::first_t<Os...>::from_type>,
-    std::conjunction<
-        std::is_same<typename FrameTree::parent_type::scalar_type, typename Os::scalar_type>...>>
+    meta::is_specialization_of<FrameTree, meta::tree>,
+    std::is_same<typename FrameTree::root,
+                 typename meta::first_t<Os...>::from_type>,
+    std::conjunction<std::is_same<typename FrameTree::root::scalar_type,
+                                  typename Os::scalar_type>...>>
 class world;
-
 
 template <class T>
 using is_world = meta::is_specialization_of<T, world>;

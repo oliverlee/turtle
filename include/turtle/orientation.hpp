@@ -4,8 +4,9 @@
 #include "quaternion.hpp"
 #include "vector_ops.hpp"
 
+#include "fmt/format.h"
+
 #include <concepts>
-#include <fmt/format.h>
 #include <utility>
 
 namespace turtle {
@@ -22,7 +23,8 @@ class orientation {
 
     constexpr orientation() = default;
 
-    explicit constexpr orientation(quaternion_type rot) : rotation_{std::move(rot)}
+    explicit constexpr orientation(quaternion_type rot)
+        : rotation_{std::move(rot)}
     {
         assert(MAX_NORMALIZED_ULP_DIFF >=
                util::ulp_diff(scalar_type{1}, rotation_.squared_magnitude()));
@@ -35,18 +37,26 @@ class orientation {
     auto angle() const -> scalar_type
     {
         // https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
-        return scalar_type{2} * std::atan2(magnitude(vector_part()), rotation_.w());
+        return scalar_type{2} *
+               std::atan2(magnitude(vector_part()), rotation_.w());
     }
-    auto axis() const -> typename From::vector { return normalized(vector_part()); }
+    auto axis() const -> typename From::vector
+    {
+        return normalized(vector_part());
+    }
 
-    constexpr auto rotation() const noexcept -> const quaternion_type& { return rotation_; }
+    constexpr auto rotation() const noexcept -> const quaternion_type&
+    {
+        return rotation_;
+    }
 
     constexpr auto inverse() const -> orientation<To, From>
     {
         return orientation<To, From>{rotation_.conjugate()};
     }
 
-    constexpr auto rotate(const typename From::vector& v) const -> typename To::vector
+    constexpr auto rotate(const typename From::vector& v) const ->
+        typename To::vector
     {
         const auto u = turtle::rotate(v, rotation_.conjugate());
         return {u.x(), u.y(), u.z()};
@@ -54,7 +64,8 @@ class orientation {
 
   private:
     template <con::reference_frame C>
-    friend constexpr auto operator*(const orientation& ori1, const orientation<To, C>& ori2)
+    friend constexpr auto
+    operator*(const orientation& ori1, const orientation<To, C>& ori2)
         -> orientation<From, C>
     {
         return orientation<From, C>{ori1.rotation() * ori2.rotation()};
@@ -65,13 +76,15 @@ class orientation {
         return {rotation_.x(), rotation_.y(), rotation_.z()};
     }
 
-    quaternion<scalar_type> rotation_{scalar_type{1}, scalar_type{}, scalar_type{}, scalar_type{}};
+    quaternion<scalar_type> rotation_{
+        scalar_type{1}, scalar_type{}, scalar_type{}, scalar_type{}};
 };
 
 }  // namespace turtle
 
 template <class From, class To>
-struct fmt::formatter<turtle::orientation<From, To>> : fmt::formatter<typename From::vector> {
+struct fmt::formatter<turtle::orientation<From, To>>
+    : fmt::formatter<typename From::vector> {
     template <class FormatContext>
     auto format(const turtle::orientation<From, To>& ori, FormatContext& ctx)
     {

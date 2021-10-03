@@ -13,9 +13,12 @@ struct zip_transform_iterator {
 
     using iterator_category = std::input_iterator_tag;
     using value_type =
-        std::invoke_result_t<BinOp, std::iter_reference_t<Iter1>, std::iter_reference_t<Iter2>>;
+        std::invoke_result_t<BinOp,
+                             std::iter_reference_t<Iter1>,
+                             std::iter_reference_t<Iter2>>;
     using difference_type =
-        std::common_type_t<std::iter_difference_t<Iter1>, std::iter_difference_t<Iter2>>;
+        std::common_type_t<std::iter_difference_t<Iter1>,
+                           std::iter_difference_t<Iter2>>;
     using pointer = void;
     using reference = void;
 
@@ -36,7 +39,8 @@ struct zip_transform_iterator {
         return tmp;
     }
 
-    friend constexpr auto operator==(const iterator& lhs, const iterator& rhs) noexcept -> bool
+    friend constexpr auto
+    operator==(const iterator& lhs, const iterator& rhs) noexcept -> bool
     {
         return (lhs.first1 == rhs.first1) && (lhs.first2 == rhs.first2);
     }

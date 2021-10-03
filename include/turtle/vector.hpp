@@ -4,11 +4,12 @@
 #include "util/array.hpp"
 #include "util/zip_transform_iterator.hpp"
 
+#include "fmt/format.h"
+
 #include <algorithm>
 #include <array>
 #include <concepts>
 #include <cstddef>
-#include <fmt/format.h>
 #include <ranges>
 #include <utility>
 
@@ -45,15 +46,24 @@ class vector {
 
     constexpr auto x() & -> scalar_type& { return std::get<0>(data_); }
     constexpr auto x() && -> scalar_type&& { return std::get<0>(data_); }
-    constexpr auto x() const& -> const scalar_type& { return std::get<0>(data_); }
+    constexpr auto x() const& -> const scalar_type&
+    {
+        return std::get<0>(data_);
+    }
 
     constexpr auto y() & -> scalar_type& { return std::get<1>(data_); }
     constexpr auto y() && -> scalar_type&& { return std::get<1>(data_); }
-    constexpr auto y() const& -> const scalar_type& { return std::get<1>(data_); }
+    constexpr auto y() const& -> const scalar_type&
+    {
+        return std::get<1>(data_);
+    }
 
     constexpr auto z() & -> scalar_type& { return std::get<2>(data_); }
     constexpr auto z() && -> scalar_type&& { return std::get<2>(data_); }
-    constexpr auto z() const& -> const scalar_type& { return std::get<2>(data_); }
+    constexpr auto z() const& -> const scalar_type&
+    {
+        return std::get<2>(data_);
+    }
 
     constexpr auto begin() & -> iterator { return data_.begin(); }
     constexpr auto begin() const& -> const_iterator { return data_.begin(); }
@@ -76,14 +86,17 @@ class vector {
     }
 
     template <class UnaryOp>
-    static constexpr auto apply_elementwise(const vector& v, UnaryOp uop) -> vector
+    static constexpr auto apply_elementwise(const vector& v, UnaryOp uop)
+        -> vector
     {
         return make_vector(v | std::views::transform(std::move(uop)));
     }
     template <class BinOp>
-    static constexpr auto apply_elementwise(const vector& v, const vector& u, BinOp bop) -> vector
+    static constexpr auto
+    apply_elementwise(const vector& v, const vector& u, BinOp bop) -> vector
     {
-        return make_vector(util::zip_transform_iterator{v.cbegin(), u.cbegin(), std::move(bop)});
+        return make_vector(util::zip_transform_iterator{
+            v.cbegin(), u.cbegin(), std::move(bop)});
     }
 
     constexpr auto operator+=(const vector& u) -> vector&
@@ -123,24 +136,32 @@ class vector {
 
     friend constexpr auto operator*(scalar_type a, const vector& v) -> vector
     {
-        return apply_elementwise(v, [a = std::move(a)](const auto& x) { return a * x; });
+        return apply_elementwise(v, [a = std::move(a)](const auto& x) {
+            return a * x;
+        });
     }
     friend constexpr auto operator*(const vector& v, scalar_type a) -> vector
     {
-        return apply_elementwise(v, [a = std::move(a)](const auto& x) { return x * a; });
+        return apply_elementwise(v, [a = std::move(a)](const auto& x) {
+            return x * a;
+        });
     }
     friend constexpr auto operator/(const vector& v, scalar_type a) -> vector
     {
-        return apply_elementwise(v, [a = std::move(a)](const auto& x) { return x / a; });
+        return apply_elementwise(v, [a = std::move(a)](const auto& x) {
+            return x / a;
+        });
     }
 
-    friend constexpr auto operator==(const vector&, const vector&) -> bool = default;
+    friend constexpr auto operator==(const vector&, const vector&)
+        -> bool = default;
 };
 
 }  // namespace turtle
 
 template <class Frame>
-struct fmt::formatter<turtle::vector<Frame>> : fmt::formatter<typename Frame::scalar_type> {
+struct fmt::formatter<turtle::vector<Frame>>
+    : fmt::formatter<typename Frame::scalar_type> {
     template <class FormatContext>
     auto format(const turtle::vector<Frame>& v, FormatContext& ctx)
     {

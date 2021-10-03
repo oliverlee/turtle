@@ -1,9 +1,10 @@
 #include "turtle/quaternion.hpp"
 
-#include "boost/ut.hpp"
-#include "test/util/within.hpp"
 #include "turtle/frame.hpp"
 #include "turtle/vector.hpp"
+#include "test/util/within.hpp"
+
+#include "boost/ut.hpp"
 
 #include <cmath>
 #include <numbers>
@@ -65,17 +66,22 @@ auto main() -> int
         expect(within<1.e-9>(v, rotate(v, turtle::quaternion{0., axis})));
         expect(within<1.e-9>(v, rotate(v, turtle::quaternion{2. * pi, axis})));
 
-        expect(within<1.e-9>(N::vector{1., -3., 2.}, rotate(v, turtle::quaternion{pi / 2., axis})));
         expect(within<1.e-9>(N::vector{1., -3., 2.},
-                             rotate(v, turtle::quaternion{-3. * pi / 2., axis})));
+                             rotate(v, turtle::quaternion{pi / 2., axis})));
+        expect(within<1.e-9>(
+            N::vector{1., -3., 2.},
+            rotate(v, turtle::quaternion{-3. * pi / 2., axis})));
 
-        expect(within<1.e-9>(N::vector{1., -2., -3.}, rotate(v, turtle::quaternion{pi, axis})));
-        expect(within<1.e-9>(N::vector{1., -2., -3.}, rotate(v, turtle::quaternion{-pi, axis})));
+        expect(within<1.e-9>(
+            N::vector{1., -2., -3.}, rotate(v, turtle::quaternion{pi, axis})));
+        expect(within<1.e-9>(
+            N::vector{1., -2., -3.}, rotate(v, turtle::quaternion{-pi, axis})));
 
-        expect(
-            within<1.e-9>(N::vector{1., 3., -2.}, rotate(v, turtle::quaternion{-pi / 2., axis})));
         expect(within<1.e-9>(N::vector{1., 3., -2.},
-                             rotate(v, turtle::quaternion{3. * pi / 2., axis})));
+                             rotate(v, turtle::quaternion{-pi / 2., axis})));
+        expect(within<1.e-9>(
+            N::vector{1., 3., -2.},
+            rotate(v, turtle::quaternion{3. * pi / 2., axis})));
     };
 
     test("rotate about y axis") = [] {
@@ -87,17 +93,22 @@ auto main() -> int
         expect(within<1.e-9>(v, rotate(v, turtle::quaternion{0., axis})));
         expect(within<1.e-9>(v, rotate(v, turtle::quaternion{2. * pi, axis})));
 
-        expect(within<1.e-9>(N::vector{3., 2., -1.}, rotate(v, turtle::quaternion{pi / 2., axis})));
         expect(within<1.e-9>(N::vector{3., 2., -1.},
-                             rotate(v, turtle::quaternion{-3. * pi / 2., axis})));
+                             rotate(v, turtle::quaternion{pi / 2., axis})));
+        expect(within<1.e-9>(
+            N::vector{3., 2., -1.},
+            rotate(v, turtle::quaternion{-3. * pi / 2., axis})));
 
-        expect(within<1.e-9>(N::vector{-1., 2., -3.}, rotate(v, turtle::quaternion{pi, axis})));
-        expect(within<1.e-9>(N::vector{-1., 2., -3.}, rotate(v, turtle::quaternion{-pi, axis})));
+        expect(within<1.e-9>(
+            N::vector{-1., 2., -3.}, rotate(v, turtle::quaternion{pi, axis})));
+        expect(within<1.e-9>(
+            N::vector{-1., 2., -3.}, rotate(v, turtle::quaternion{-pi, axis})));
 
-        expect(
-            within<1.e-9>(N::vector{-3., 2., 1.}, rotate(v, turtle::quaternion{-pi / 2., axis})));
         expect(within<1.e-9>(N::vector{-3., 2., 1.},
-                             rotate(v, turtle::quaternion{3. * pi / 2., axis})));
+                             rotate(v, turtle::quaternion{-pi / 2., axis})));
+        expect(within<1.e-9>(
+            N::vector{-3., 2., 1.},
+            rotate(v, turtle::quaternion{3. * pi / 2., axis})));
     };
 
     test("rotate about z axis") = [] {
@@ -109,17 +120,22 @@ auto main() -> int
         expect(within<1.e-9>(v, rotate(v, turtle::quaternion{0., axis})));
         expect(within<1.e-9>(v, rotate(v, turtle::quaternion{2. * pi, axis})));
 
-        expect(within<1.e-9>(N::vector{-2., 1., 3.}, rotate(v, turtle::quaternion{pi / 2., axis})));
         expect(within<1.e-9>(N::vector{-2., 1., 3.},
-                             rotate(v, turtle::quaternion{-3. * pi / 2., axis})));
+                             rotate(v, turtle::quaternion{pi / 2., axis})));
+        expect(within<1.e-9>(
+            N::vector{-2., 1., 3.},
+            rotate(v, turtle::quaternion{-3. * pi / 2., axis})));
 
-        expect(within<1.e-9>(N::vector{-1., -2., 3.}, rotate(v, turtle::quaternion{pi, axis})));
-        expect(within<1.e-9>(N::vector{-1., -2., 3.}, rotate(v, turtle::quaternion{-pi, axis})));
+        expect(within<1.e-9>(
+            N::vector{-1., -2., 3.}, rotate(v, turtle::quaternion{pi, axis})));
+        expect(within<1.e-9>(
+            N::vector{-1., -2., 3.}, rotate(v, turtle::quaternion{-pi, axis})));
 
-        expect(
-            within<1.e-9>(N::vector{2., -1., 3.}, rotate(v, turtle::quaternion{-pi / 2., axis})));
         expect(within<1.e-9>(N::vector{2., -1., 3.},
-                             rotate(v, turtle::quaternion{3. * pi / 2., axis})));
+                             rotate(v, turtle::quaternion{-pi / 2., axis})));
+        expect(within<1.e-9>(
+            N::vector{2., -1., 3.},
+            rotate(v, turtle::quaternion{3. * pi / 2., axis})));
     };
 
     test("rotate aborts with non-unit quaternion") = [] {
