@@ -32,16 +32,14 @@ class world : Os... {
     {}
 
     template <class From, class To>
-    constexpr auto get() & noexcept
-        -> decltype(static_cast<orientation<From, To>>(*this))
+    constexpr auto get() & noexcept -> orientation<From, To>&
     {
-        return static_cast<orientation<From, To>>(*this);
+        return static_cast<orientation<From, To>&>(*this);
     }
     template <class From, class To>
-    constexpr auto get() const& noexcept
-        -> decltype(static_cast<orientation<From, To>>(*this))
+    constexpr auto get() const& noexcept -> const orientation<From, To>&
     {
-        return static_cast<orientation<From, To>>(*this);
+        return static_cast<const orientation<From, To>&>(*this);
     }
 
   private:

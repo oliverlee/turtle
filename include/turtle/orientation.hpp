@@ -43,7 +43,7 @@ class orientation {
         return normalized(vector_part());
     }
 
-    constexpr auto rotation() const noexcept -> const quaternion&
+    constexpr auto rotation() const& noexcept -> const quaternion&
     {
         return rotation_;
     }
