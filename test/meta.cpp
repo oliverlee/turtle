@@ -1,8 +1,21 @@
 #include "turtle/meta.hpp"
 
+#include "turtle/m2.hpp"
+
 #include "boost/ut.hpp"
 
 #include <type_traits>
+
+namespace metal {
+
+// Only define equality so we get a decent error message on failure
+template <class... Args>
+constexpr auto operator==(list<Args...>, list<Args...>) noexcept -> bool
+{
+    return true;
+}
+
+}  // namespace metal
 
 auto main() -> int
 {
@@ -15,6 +28,8 @@ auto main() -> int
     using turtle::meta::tree_depth_v;
     using turtle::meta::type_list;
     using turtle::meta::type_tree;
+
+    namespace m2 = turtle::m2;
 
     struct A {};
     struct B {};
@@ -32,6 +47,10 @@ auto main() -> int
             std::is_same_v<
                 type_list<A, B, D, E, C>,
                 flatten_t<type_list, type_tree<A, type_tree<B, D, E>, C>>>);
+
+        static_assert(metal::list<A, B>{} == m2::flatten<m2::tree<A, B>>{});
+        static_assert(metal::list<A, B, D, E, C>{} ==
+                      m2::flatten<m2::tree<A, m2::tree<B, D, E>, C>>{});
     };
 
     test("unique types") = [] {
