@@ -75,6 +75,15 @@ auto main() -> int
         static_assert(std::is_same_v<type_list<A, B, D>, path_t<D, Tree>>);
         static_assert(std::is_same_v<type_list<A, B, E>, path_t<E, Tree>>);
         static_assert(std::is_same_v<type_list<>, path_t<F, Tree>>);
+
+        using Tree2 = m2::tree<A, m2::tree<B, D, E>, C>;
+
+        static_assert(metal::list<A>{} == m2::path_to<Tree2, A>{});
+        static_assert(metal::list<A, C>{} == m2::path_to<Tree2, C>{});
+        static_assert(metal::list<A, B>{} == m2::path_to<Tree2, B>{});
+        static_assert(metal::list<A, B, D>{} == m2::path_to<Tree2, D>{});
+        static_assert(metal::list<A, B, E>{} == m2::path_to<Tree2, E>{});
+        static_assert(metal::list<>{} == m2::path_to<Tree2, F>{});
     };
 
     test("type tree depth") = [] {
@@ -123,6 +132,16 @@ auto main() -> int
         static_assert(Tree::contains_v<E>);
 
         static_assert(not Tree::contains_v<F>);
+
+        using Tree2 = m2::tree<A, m2::tree<B, D, E>, C>;
+
+        static_assert(Tree2::contains_v<A>);
+        static_assert(Tree2::contains_v<B>);
+        static_assert(Tree2::contains_v<C>);
+        static_assert(Tree2::contains_v<D>);
+        static_assert(Tree2::contains_v<E>);
+
+        static_assert(not Tree2::contains_v<F>);
     };
 
     test("add branches to a tree") = [] {
@@ -148,5 +167,25 @@ auto main() -> int
             std::is_same_v<
                 type_tree<A, type_tree<B, D, type_tree<E, F>>, type_tree<C, G>>,
                 T6>);
+
+        static_assert(m2::tree<A, B>{} == m2::insert<m2::tree<A>, A, B>{});
+
+        static_assert(
+            m2::tree<A, B, C>{} == m2::insert<m2::tree<A, B>, A, C>{});
+
+        static_assert(m2::tree<A, m2::tree<B, D>, C>{} ==
+                      m2::insert<m2::tree<A, B, C>, B, D>{});
+
+        static_assert(m2::tree<A, m2::tree<B, m2::tree<D, E>>, C>{} ==
+                      m2::insert<m2::tree<A, m2::tree<B, D>, C>, D, E>{});
+
+        static_assert(m2::tree<A, m2::tree<B, D, E>, C>{} ==
+                      m2::insert<m2::tree<A, m2::tree<B, D>, C>, B, E>{});
+
+        static_assert(m2::tree<A, m2::tree<B, D, m2::tree<E, F>>, C>{} ==
+                      m2::insert<m2::tree<A, m2::tree<B, D, E>, C>, E, F>{});
+
+        static_assert(m2::tree<A, m2::tree<B, D, E>, m2::tree<C, G>>{} ==
+                      m2::insert<m2::tree<A, m2::tree<B, D, E>, C>, C, G>{});
     };
 }
