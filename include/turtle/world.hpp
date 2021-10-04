@@ -14,34 +14,32 @@
 
 namespace turtle {
 
-template <class FrameTree, con::orientation... Os>
+template <class FrameTree, kinematic::orientation... Os>
 requires std::conjunction_v<
     meta::is_specialization_of<FrameTree, meta::tree>,
     std::is_same<typename FrameTree::root,
-                 typename meta::first_t<Os...>::from_type>,
-    std::conjunction<std::is_same<typename FrameTree::root::scalar_type,
-                                  typename Os::scalar_type>...>>
+                 typename meta::first_t<Os...>::source_frame>,
+    std::conjunction<
+        std::is_same<typename FrameTree::root::scalar, typename Os::scalar>...>>
 class world : Os... {
   public:
     using tree = FrameTree;
     using root = typename FrameTree::root;
-    using scalar_type = typename root::scalar_type;
+    using scalar = typename root::scalar;
 
     template <class... Args>
     constexpr world(Args&&... args) : Os(std::forward<Args>(args))...
     {}
 
     template <class From, class To>
-    constexpr auto get() & noexcept
-        -> decltype(static_cast<orientation<From, To>>(*this))
+    constexpr auto get() & noexcept -> orientation<From, To>&
     {
-        return static_cast<orientation<From, To>>(*this);
+        return static_cast<orientation<From, To>&>(*this);
     }
     template <class From, class To>
-    constexpr auto get() const& noexcept
-        -> decltype(static_cast<orientation<From, To>>(*this))
+    constexpr auto get() const& noexcept -> const orientation<From, To>&
     {
-        return static_cast<orientation<From, To>>(*this);
+        return static_cast<const orientation<From, To>&>(*this);
     }
 
   private:
@@ -157,8 +155,8 @@ struct orientation_printer {
 
 }  // namespace turtle
 
-template <turtle::con::world W>
-struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
+template <turtle::kinematic::world W>
+struct fmt::formatter<W> : fmt::formatter<typename W::scalar> {
 
     template <class Printer, class FormatContext, class From>
     auto print_tree(Printer&&, const W&, FormatContext&, From, metal::list<>)
@@ -167,7 +165,7 @@ struct fmt::formatter<W> : fmt::formatter<typename W::scalar_type> {
     template <class Printer,
               class FormatContext,
               class From,
-              turtle::con::reference_frame To,
+              turtle::kinematic::frame To,
               class... Frames>
     auto print_tree(Printer&& printer,
                     const W& world,

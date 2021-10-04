@@ -11,41 +11,39 @@
 
 namespace turtle {
 
-template <con::reference_frame From, con::reference_frame To>
-requires std::same_as<typename From::scalar_type, typename To::scalar_type>
+template <kinematic::frame From, kinematic::frame To>
+requires std::same_as<typename From::scalar, typename To::scalar>
 class orientation {
   public:
-    using scalar_type = typename From::scalar_type;
-    using quaternion_type = quaternion<scalar_type>;
+    using scalar = typename From::scalar;
+    using quaternion = turtle::quaternion<scalar>;
 
-    using from_type = From;
-    using to_type = To;
+    using source_frame = From;
+    using dest_frame = To;
 
     constexpr orientation() = default;
 
-    explicit constexpr orientation(quaternion_type rot)
-        : rotation_{std::move(rot)}
+    explicit constexpr orientation(quaternion rot) : rotation_{std::move(rot)}
     {
         assert(MAX_NORMALIZED_ULP_DIFF >=
-               util::ulp_diff(scalar_type{1}, rotation_.squared_magnitude()));
+               util::ulp_diff(scalar{1}, rotation_.squared_magnitude()));
     }
 
-    orientation(scalar_type angle, typename From::vector axis)
+    orientation(scalar angle, typename From::vector axis)
         : rotation_{std::move(angle), std::move(axis)}
     {}
 
-    auto angle() const -> scalar_type
+    auto angle() const -> scalar
     {
         // https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
-        return scalar_type{2} *
-               std::atan2(magnitude(vector_part()), rotation_.w());
+        return scalar{2} * std::atan2(magnitude(vector_part()), rotation_.w());
     }
     auto axis() const -> typename From::vector
     {
         return normalized(vector_part());
     }
 
-    constexpr auto rotation() const noexcept -> const quaternion_type&
+    constexpr auto rotation() const& noexcept -> const quaternion&
     {
         return rotation_;
     }
@@ -63,7 +61,7 @@ class orientation {
     }
 
   private:
-    template <con::reference_frame C>
+    template <kinematic::frame C>
     friend constexpr auto
     operator*(const orientation& ori1, const orientation<To, C>& ori2)
         -> orientation<From, C>
@@ -76,8 +74,7 @@ class orientation {
         return {rotation_.x(), rotation_.y(), rotation_.z()};
     }
 
-    quaternion<scalar_type> rotation_{
-        scalar_type{1}, scalar_type{}, scalar_type{}, scalar_type{}};
+    quaternion rotation_{scalar{1}, scalar{}, scalar{}, scalar{}};
 };
 
 }  // namespace turtle
@@ -88,7 +85,7 @@ struct fmt::formatter<turtle::orientation<From, To>>
     template <class FormatContext>
     auto format(const turtle::orientation<From, To>& ori, FormatContext& ctx)
     {
-        using T = typename From::scalar_type;
+        using T = typename From::scalar;
 
         auto&& out = ctx.out();
 

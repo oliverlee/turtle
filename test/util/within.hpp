@@ -17,7 +17,7 @@ auto within(const T& v, const U& u)
     return boost::ut::eq(ut_value{v, Tol}, u);
 }
 
-template <auto Tol, turtle::con::reference_frame_vector Vector>
+template <auto Tol, turtle::kinematic::vector Vector>
 auto within(const Vector& v, const Vector& u)
 {
     using boost::ut::operator and;

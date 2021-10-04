@@ -24,7 +24,7 @@ class quaternion {
     data_type data_{};
 
   public:
-    using scalar_type = T;
+    using scalar = T;
 
     using iterator = typename data_type::iterator;
     using const_iterator = typename data_type::const_iterator;
@@ -35,7 +35,7 @@ class quaternion {
         : data_{std::move(q0), std::move(q1), std::move(q2), std::move(q3)}
     {}
 
-    template <con::reference_frame_vector Vector>
+    template <kinematic::vector Vector>
     quaternion(T angle, Vector axis)
         : quaternion{std::cos(angle / T{2}),
                      axis.x() * std::sin(angle / T{2}),
@@ -48,7 +48,7 @@ class quaternion {
         }
     }
 
-    template <con::reference_frame_vector Vector>
+    template <kinematic::vector Vector>
     explicit constexpr quaternion(Vector v)
         : quaternion{T{}, std::move(v.x()), std::move(v.y()), std::move(v.z())}
     {}
@@ -76,33 +76,21 @@ class quaternion {
     friend constexpr auto operator==(const quaternion&, const quaternion&)
         -> bool = default;
 
-    constexpr auto w() & -> scalar_type& { return std::get<0>(data_); }
-    constexpr auto w() && -> scalar_type&& { return std::get<0>(data_); }
-    constexpr auto w() const& -> const scalar_type&
-    {
-        return std::get<0>(data_);
-    }
+    constexpr auto w() & -> scalar& { return std::get<0>(data_); }
+    constexpr auto w() && -> scalar&& { return std::get<0>(data_); }
+    constexpr auto w() const& -> const scalar& { return std::get<0>(data_); }
 
-    constexpr auto x() & -> scalar_type& { return std::get<1>(data_); }
-    constexpr auto x() && -> scalar_type&& { return std::get<1>(data_); }
-    constexpr auto x() const& -> const scalar_type&
-    {
-        return std::get<1>(data_);
-    }
+    constexpr auto x() & -> scalar& { return std::get<1>(data_); }
+    constexpr auto x() && -> scalar&& { return std::get<1>(data_); }
+    constexpr auto x() const& -> const scalar& { return std::get<1>(data_); }
 
-    constexpr auto y() & -> scalar_type& { return std::get<2>(data_); }
-    constexpr auto y() && -> scalar_type&& { return std::get<2>(data_); }
-    constexpr auto y() const& -> const scalar_type&
-    {
-        return std::get<2>(data_);
-    }
+    constexpr auto y() & -> scalar& { return std::get<2>(data_); }
+    constexpr auto y() && -> scalar&& { return std::get<2>(data_); }
+    constexpr auto y() const& -> const scalar& { return std::get<2>(data_); }
 
-    constexpr auto z() & -> scalar_type& { return std::get<3>(data_); }
-    constexpr auto z() && -> scalar_type&& { return std::get<3>(data_); }
-    constexpr auto z() const& -> const scalar_type&
-    {
-        return std::get<3>(data_);
-    }
+    constexpr auto z() & -> scalar& { return std::get<3>(data_); }
+    constexpr auto z() && -> scalar&& { return std::get<3>(data_); }
+    constexpr auto z() const& -> const scalar& { return std::get<3>(data_); }
 
     constexpr auto begin() & -> iterator { return data_.begin(); }
     constexpr auto begin() const& -> const_iterator { return data_.begin(); }
@@ -113,19 +101,19 @@ class quaternion {
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
 };
 
-template <con::reference_frame_vector Vector>
-quaternion(typename Vector::scalar_type a, const Vector& v)
-    -> quaternion<typename Vector::scalar_type>;
+template <kinematic::vector Vector>
+quaternion(typename Vector::scalar a, const Vector& v)
+    -> quaternion<typename Vector::scalar>;
 
-template <con::reference_frame_vector Vector>
-quaternion(const Vector& v) -> quaternion<typename Vector::scalar_type>;
+template <kinematic::vector Vector>
+quaternion(const Vector& v) -> quaternion<typename Vector::scalar>;
 
-template <con::reference_frame Frame>
-constexpr auto rotate(const vector<Frame>& v,
-                      const quaternion<typename Frame::scalar_type>& qr)
+template <kinematic::frame Frame>
+constexpr auto
+rotate(const vector<Frame>& v, const quaternion<typename Frame::scalar>& qr)
     -> vector<Frame>
 {
-    using T = typename Frame::scalar_type;
+    using T = typename Frame::scalar;
     assert(MAX_NORMALIZED_ULP_DIFF >=
            util::ulp_diff(T{1}, qr.squared_magnitude()));
 

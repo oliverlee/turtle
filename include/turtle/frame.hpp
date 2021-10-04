@@ -8,9 +8,9 @@
 
 namespace turtle {
 
-template <detail::Descriptor Name, class T = DefaultScalar>
+template <detail::descriptor Name, class T = DefaultScalar>
 struct frame {
-    using scalar_type = T;
+    using scalar = T;
     using vector = turtle::vector<frame>;
 
     static constexpr auto name = std::string_view{Name.name.data()};
@@ -22,7 +22,7 @@ struct frame {
 
 }  // namespace turtle
 
-template <turtle::detail::Descriptor Name>
+template <turtle::detail::descriptor Name>
 struct fmt::formatter<turtle::frame<Name>> : fmt::formatter<std::string_view> {
     template <class FormatContext>
     auto format(const turtle::frame<Name>&, FormatContext& ctx)

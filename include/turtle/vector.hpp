@@ -15,15 +15,15 @@
 
 namespace turtle {
 
-template <con::reference_frame Frame>
+template <kinematic::frame Frame>
 class vector {
   public:
-    using reference_frame = Frame;
-    using scalar_type = typename Frame::scalar_type;
+    using frame = Frame;
+    using scalar = typename Frame::scalar;
 
   private:
     static constexpr auto dimension = 3;
-    using data_type = std::array<scalar_type, dimension>;
+    using data_type = std::array<scalar, dimension>;
 
     template <class Iterable>
     static constexpr auto make_vector(Iterable it) -> vector
@@ -40,30 +40,21 @@ class vector {
     constexpr vector() = default;
 
     template <class U>
-    constexpr vector(U x, U y, U z) requires std::same_as<U, scalar_type>
+    constexpr vector(U x, U y, U z) requires std::same_as<U, scalar>
         : data_{std::move(x), std::move(y), std::move(z)}
     {}
 
-    constexpr auto x() & -> scalar_type& { return std::get<0>(data_); }
-    constexpr auto x() && -> scalar_type&& { return std::get<0>(data_); }
-    constexpr auto x() const& -> const scalar_type&
-    {
-        return std::get<0>(data_);
-    }
+    constexpr auto x() & -> scalar& { return std::get<0>(data_); }
+    constexpr auto x() && -> scalar&& { return std::get<0>(data_); }
+    constexpr auto x() const& -> const scalar& { return std::get<0>(data_); }
 
-    constexpr auto y() & -> scalar_type& { return std::get<1>(data_); }
-    constexpr auto y() && -> scalar_type&& { return std::get<1>(data_); }
-    constexpr auto y() const& -> const scalar_type&
-    {
-        return std::get<1>(data_);
-    }
+    constexpr auto y() & -> scalar& { return std::get<1>(data_); }
+    constexpr auto y() && -> scalar&& { return std::get<1>(data_); }
+    constexpr auto y() const& -> const scalar& { return std::get<1>(data_); }
 
-    constexpr auto z() & -> scalar_type& { return std::get<2>(data_); }
-    constexpr auto z() && -> scalar_type&& { return std::get<2>(data_); }
-    constexpr auto z() const& -> const scalar_type&
-    {
-        return std::get<2>(data_);
-    }
+    constexpr auto z() & -> scalar& { return std::get<2>(data_); }
+    constexpr auto z() && -> scalar&& { return std::get<2>(data_); }
+    constexpr auto z() const& -> const scalar& { return std::get<2>(data_); }
 
     constexpr auto begin() & -> iterator { return data_.begin(); }
     constexpr auto begin() const& -> const_iterator { return data_.begin(); }
@@ -73,16 +64,16 @@ class vector {
     constexpr auto end() const& -> const_iterator { return data_.end(); }
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
 
-    template <con::reference_frame To>
+    template <kinematic::frame To>
     auto in(const orientation<Frame, To>& ori) const -> typename To::vector
     {
         return ori.rotate(*this);
     }
 
-    template <con::reference_frame To, con::world World>
+    template <kinematic::frame To, kinematic::world World>
     auto in(const World& world) const -> typename To::vector
     {
-        return world.template express<reference_frame, To>().rotate(*this);
+        return world.template express<frame, To>().rotate(*this);
     }
 
     template <class UnaryOp>
@@ -109,12 +100,12 @@ class vector {
         std::ranges::transform(*this, u, begin(), std::minus<>{});
         return *this;
     }
-    constexpr auto operator*=(scalar_type a) -> vector&
+    constexpr auto operator*=(scalar a) -> vector&
     {
         std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x *= a; });
         return *this;
     }
-    constexpr auto operator/=(scalar_type a) -> vector&
+    constexpr auto operator/=(scalar a) -> vector&
     {
         std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x /= a; });
         return *this;
@@ -134,19 +125,19 @@ class vector {
         return apply_elementwise(v, std::negate<>{});
     }
 
-    friend constexpr auto operator*(scalar_type a, const vector& v) -> vector
+    friend constexpr auto operator*(scalar a, const vector& v) -> vector
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) {
             return a * x;
         });
     }
-    friend constexpr auto operator*(const vector& v, scalar_type a) -> vector
+    friend constexpr auto operator*(const vector& v, scalar a) -> vector
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) {
             return x * a;
         });
     }
-    friend constexpr auto operator/(const vector& v, scalar_type a) -> vector
+    friend constexpr auto operator/(const vector& v, scalar a) -> vector
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) {
             return x / a;
@@ -161,11 +152,11 @@ class vector {
 
 template <class Frame>
 struct fmt::formatter<turtle::vector<Frame>>
-    : fmt::formatter<typename Frame::scalar_type> {
+    : fmt::formatter<typename Frame::scalar> {
     template <class FormatContext>
     auto format(const turtle::vector<Frame>& v, FormatContext& ctx)
     {
-        using T = typename Frame::scalar_type;
+        using T = typename Frame::scalar;
 
         auto&& out = ctx.out();
 

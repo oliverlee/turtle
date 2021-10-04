@@ -79,9 +79,35 @@ auto main() -> int
             orientation<N, C>{},
         };
 
-        const auto& ori = w.get<A, B>();
+        static_assert(
+            std::is_same_v<const orientation<A, B>&, decltype(w.get<A, B>())>);
 
-        static_assert(std::is_same_v<const orientation<A, B>&, decltype(ori)>);
+        const auto& ori = w.get<A, B>();
+        expect(eq(angle, ori.angle()));
+        expect(eq(axis, ori.axis()));
+    };
+
+    test("world change orientation") = [] {
+        using N = frame<"N">;
+        using A = frame<"A">;
+        using B = frame<"B">;
+        using C = frame<"C">;
+
+        constexpr auto angle = 0.1;
+        constexpr auto axis = A::vector{1., 0., 0.};
+
+        auto w = world{
+            orientation<N, A>{},
+            orientation<A, B>{},
+            orientation<N, C>{},
+        };
+
+        w.get<A, B>() = orientation<A, B>{angle, axis};
+
+        static_assert(
+            std::is_same_v<orientation<A, B>&, decltype(w.get<A, B>())>);
+
+        const auto& ori = std::as_const(w).get<A, B>();
         expect(eq(angle, ori.angle()));
         expect(eq(axis, ori.axis()));
     };
