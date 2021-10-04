@@ -14,6 +14,14 @@
 
 namespace turtle {
 
+/// @brief A kinematic world
+/// @tparam FrameTree Metatype describing a fixed reference frame topology
+/// @tparam Os Sequence of frame orientations, corresponding to `FrameTree`
+///
+/// Specifies reference frame topology and frame relationships at a given
+/// instance. This type stores the inter-frame orientations and allows other
+/// kinematic types (e.g. vector, point) to be expressed any contained frame,
+/// applying underlying rotations.
 template <class FrameTree, kinematic::orientation... Os>
 requires std::conjunction_v<
     meta::is_specialization_of<FrameTree, meta::tree>,
@@ -23,23 +31,45 @@ requires std::conjunction_v<
         std::is_same<typename FrameTree::root::scalar, typename Os::scalar>...>>
 class world : Os... {
   public:
-    using tree = FrameTree;
-    using root = typename FrameTree::root;
-    using scalar = typename root::scalar;
+    /// @name Kinematic types
+    /// @{
 
+    /// @brief World frame topology
+    using tree = FrameTree;
+
+    /// @brief World inertial frame
+    using root = typename FrameTree::root;
+
+    /// @brief World point type
     using point = turtle::point<world>;
 
+    /// @}
+
+    using scalar = typename root::scalar;  ///< World scalar type
+
+    /// @brief Constructs a world with identity rotations relating frames
     constexpr world() = default;
 
+    /// @brief Constructs a world with specified rotations relating frames
+    /// @tparam Args Frame orientation types
+    /// @param args Frame orientation values
     template <class... Args>
     constexpr world(Args&&... args) : Os(std::forward<Args>(args))...
     {}
 
+    /// @brief Accesses the orientation relationship between two frames
+    /// @tparam From Source frame
+    /// @tparam To Destination frame
+    ///
+    /// Accesses the orientation relationship between a source frame and
+    /// destination frame, where source is defined to be close the world root.
     template <class From, class To>
     constexpr auto get() & noexcept -> orientation<From, To>&
     {
         return static_cast<orientation<From, To>&>(*this);
     }
+
+    /// @copydoc get
     template <class From, class To>
     constexpr auto get() const& noexcept -> const orientation<From, To>&
     {
@@ -62,6 +92,12 @@ class world : Os... {
     }
 
   public:
+    /// @brief Expresses the orientation from the world root to a destination
+    /// frame
+    /// @tparam To Destination frame
+    ///
+    /// Composes rotations along the path from world root to frame `To`,
+    /// returning the composed orientation of `To` relative root.
     template <class To>
     constexpr auto express() const -> decltype(compose_path(
         orientation<root, root>{}, typename tree::template path_to_t<To>{}))
@@ -70,6 +106,12 @@ class world : Os... {
             orientation<root, root>{}, typename tree::template path_to_t<To>{});
     }
 
+    /// @brief Expresses the orientation of one frame relative another
+    /// @tparam From Source frame
+    /// @tparam To Destination frame
+    ///
+    /// Composes rotations along the path from frame `From` to world root to
+    /// frame `To`, returning the composed orientation of `To` relative `From`.
     template <class From, class To>
     constexpr auto express() const -> orientation<From, To>
     {
@@ -104,8 +146,13 @@ using make_tree_t = typename make_tree<Ts...>::type;
 
 }  // namespace detail
 
+/// @name Deduction guides
+/// @{
+
 template <class... Os>
 world(Os...) -> world<detail::make_tree_t<Os...>, Os...>;
+
+/// @}
 
 namespace detail {
 

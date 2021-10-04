@@ -22,10 +22,11 @@ auto main() -> int
 
         expect(0.0_d == ori.angle());
 
-        const auto axis = ori.axis();
-        expect(std::isnan(axis.x()));
-        expect(std::isnan(axis.y()));
-        expect(std::isnan(axis.z()));
+        const auto& q = ori.rotation();
+        expect(1.0_d == q.w());
+        expect(0.0_d == q.x());
+        expect(0.0_d == q.y());
+        expect(0.0_d == q.z());
     };
 
     test("orientation axis-angle constructible") = [] {

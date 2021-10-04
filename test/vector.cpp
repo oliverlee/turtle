@@ -14,21 +14,6 @@
 
 using N = turtle::frame<"N", int>;
 
-void test_disabled_constructor()
-{
-    using V = turtle::vector<N>;
-
-    static_assert(std::is_constructible_v<V>);
-    static_assert(std::is_constructible_v<V, int, int, int>);
-
-    static_assert(not std::is_constructible_v<V, int>);
-    static_assert(not std::is_constructible_v<V, int, int>);
-    static_assert(not std::is_constructible_v<V, int, int, unsigned>);
-    static_assert(not std::is_constructible_v<V, int, bool, int>);
-    static_assert(not std::is_constructible_v<V, short, int, int>);
-    static_assert(not std::is_constructible_v<V, short, short, short>);
-};
-
 void test_disabled_comparisons()
 {
     using V = turtle::vector<N>;

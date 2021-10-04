@@ -47,4 +47,7 @@ test --test_summary=detailed
 
 test --test_timeout=15,-1,-1,-1
 
+# https://github.com/bazelbuild/bazel/issues/7091
+build --build_python_zip
+
 try-import %workspace%/.bazelrc.user

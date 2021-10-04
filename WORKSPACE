@@ -38,6 +38,29 @@ new_git_repository(
     remote = "https://github.com/boost-ext/ut/",
 )
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_python",
+    sha256 = "954aa89b491be4a083304a2cb838019c8b8c3720a7abb9c4cb81ac7a24230cea",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
+)
+
+load("@rules_python//python:pip.bzl", "pip_install")
+
+pip_install(
+    name = "pip",
+    #python_interpreter_target = "@python_interpreter//:python_bin",
+    requirements = "//doxygen:requirements.txt",
+)
+
+new_git_repository(
+    name = "mcss",
+    build_file = "@//:external/m.css.BUILD",
+    commit = "9385194fa3392a7162e7535cc2478814e382ff8a",
+    remote = "https://github.com/mosra/m.css/",
+)
+
 # https://github.com/bazelbuild/bazel/issues/8846
 new_local_repository(
     name = "llvm",

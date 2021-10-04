@@ -1,17 +1,62 @@
 # turtle
-A library for handling reference frames
+A reference frame library
 
-#### linting
-Linting is a config
+### What is this?
 
-    $ bazel build --config=clang-tidy //...
+A library for kinematics calculations that does all the book keeping for you.
+Think
+[sympy.physics.vector](https://docs.sympy.org/latest/modules/physics/vector/index.html)
+but in C++ and strongly typed.
 
-This may not work on macOS (possibly due to
-[this](https://github.com/bazelbuild/bazel/issues/12049)).
+~~~cpp
+#include "turtle/turtle.hpp"
+#include "fmt/core.h"
+#include <numbers>
 
-You can take the very annoying step of modifying
-`bazel-exclusive/external/bazel_clang_tidy/clang_tidy/run_clang_tidy.sh` and
-hard-coding the path to `clang-tidy`. Or create a symlink in one directory of
-Bazel's macOS default shell env (e.g. `/usr/local/bin`). You'll also need Bazel
-to detect that Clang is the CXX compiler, otherwise a bunch of GCC flags get
-used. There's probably a better way to do it but I'm not a Bazel expert.
+auto main() -> int
+{
+    using std::numbers::pi;
+    using turtle::frame;
+    using turtle::orientation;
+    using turtle::world;
+
+    using N = frame<"N">;
+    using A = frame<"A">;
+    using B = frame<"B">;
+
+    const auto w = world{
+        orientation<N, A>{pi / 2., N::vector{1., 0., 0.}},
+        orientation<N, B>{-pi / 6., N::vector{0., 0., 1.}}
+    };
+    fmt::print("using world w:\n{}\n", w);
+
+    constexpr auto u = A::vector{1., 2., 3.};
+    fmt::print("{} can also be expressed as {}\n",
+        u, u.in<B>(w)
+    );
+}
+~~~
+
+This is a work in progress.
+
+[fmt](https://fmt.dev/latest/index.html) is used for formatting.
+
+### Building
+Concepts and ranges are used in this library, so you'll need a compiler with
+decent C++20 support.
+
+Run the example with
+
+    bazel run //example
+
+### Testing
+Run the tests with
+
+    bazel test //...
+
+### Documentation
+Generate and view with
+
+    bazel run @mcss//:doxygen
+    open bazel-out/build-doc/html/index.html
+

@@ -1,5 +1,8 @@
 #pragma once
 
+/// @brief The turtle library
+///
+/// Defines types for working with kinematics in Cartesian coordinates.
 namespace turtle {}  // namespace turtle
 
 #include "frame.hpp"

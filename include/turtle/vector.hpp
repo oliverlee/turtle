@@ -15,11 +15,24 @@
 
 namespace turtle {
 
-template <kinematic::frame Frame>
+/// @brief Reference frame bound 3D vector
+/// @tparam F Kinematic reference frame
+///
+/// A 3D vector belonging to a reference frame. A vector value is always tied to
+/// the associated frame F but may be expressed in another frame via a world
+/// instance.
+template <kinematic::frame F>
 class vector {
   public:
-    using frame = Frame;
-    using scalar = typename Frame::scalar;
+    /// @name Kinematic types
+    /// @{
+
+    /// @brief Vector associated frame
+    using frame = F;
+
+    /// @}
+
+    using scalar = typename F::scalar;  ///< Vector scalar type
 
   private:
     static constexpr auto dimension = 3;
@@ -34,47 +47,98 @@ class vector {
     data_type data_{};
 
   public:
+    /// @name Container iterator types
+    /// @{
     using iterator = typename data_type::iterator;
     using const_iterator = typename data_type::const_iterator;
+    /// @}
 
+    /// @brief Constructs a zero vector in frame F
     constexpr vector() = default;
 
-    template <class U>
-    constexpr vector(U x, U y, U z) requires std::same_as<U, scalar>
+    /// @brief Constructs a vector from components
+    /// @param x x-axis component
+    /// @param y y-axis component
+    /// @param z z-axis component
+    constexpr vector(scalar x, scalar y, scalar z)
         : data_{std::move(x), std::move(y), std::move(z)}
     {}
 
+    /// @name Vector component methods
+    /// @{
+
+    /// @brief Returns a reference to the x component
     constexpr auto x() & -> scalar& { return std::get<0>(data_); }
+    /// @copydoc x()
     constexpr auto x() && -> scalar&& { return std::get<0>(data_); }
+    /// @copydoc x()
     constexpr auto x() const& -> const scalar& { return std::get<0>(data_); }
 
+    /// @brief Returns a reference to the y component
     constexpr auto y() & -> scalar& { return std::get<1>(data_); }
+    /// @copydoc y()
     constexpr auto y() && -> scalar&& { return std::get<1>(data_); }
+    /// @copydoc y()
     constexpr auto y() const& -> const scalar& { return std::get<1>(data_); }
 
+    /// @brief Returns a reference to the z component
     constexpr auto z() & -> scalar& { return std::get<2>(data_); }
+    /// @copydoc z()
     constexpr auto z() && -> scalar&& { return std::get<2>(data_); }
+    /// @copydoc z()
     constexpr auto z() const& -> const scalar& { return std::get<2>(data_); }
 
+    /// @}
+
+    /// @name Iterator methods
+    /// @{
+
+    /// @brief Returns an iterator to the beginning of the underlying data
     constexpr auto begin() & -> iterator { return data_.begin(); }
+    /// @copydoc begin
     constexpr auto begin() const& -> const_iterator { return data_.begin(); }
+    /// @copydoc begin
     constexpr auto cbegin() const& -> const_iterator { return data_.cbegin(); }
 
+    /// @brief Returns an iterator to the end of the underlying data
     constexpr auto end() & -> iterator { return data_.end(); }
+    /// @copydoc end
     constexpr auto end() const& -> const_iterator { return data_.end(); }
+    /// @copydoc end
     constexpr auto cend() const& -> const_iterator { return data_.cend(); }
 
+    /// @}
+
+    /// @name Frame expression operations
+    /// @{
+
+    /// @brief Express this vector in another frame
+    /// @tparam To Destination frame
+    /// @param ori Orientation of `To` relative the frame associated with this
+    /// vector
+    /// @return This vector expressed in frame `To`
     template <kinematic::frame To>
-    auto in(const orientation<Frame, To>& ori) const -> typename To::vector
+    auto in(const orientation<F, To>& ori) const -> typename To::vector
     {
         return ori.rotate(*this);
     }
 
+    /// @brief Express this vector in another frame
+    /// @tparam To Destination frame
+    /// @tparam World Kinematic world
+    /// @param world World instance relating the frame associated with this
+    /// vector and `To`
+    /// @return This vector expressed in frame `To`
     template <kinematic::frame To, kinematic::world World>
     auto in(const World& world) const -> typename To::vector
     {
         return world.template express<frame, To>().rotate(*this);
     }
+
+    /// @}
+
+    /// @name Elementwise transform methods
+    /// @{
 
     template <class UnaryOp>
     static constexpr auto apply_elementwise(const vector& v, UnaryOp uop)
@@ -90,53 +154,73 @@ class vector {
             v.cbegin(), u.cbegin(), std::move(bop)});
     }
 
+    /// @}
+
+    /// @name Compound assignment methods
+    /// @{
+
+    /// @brief Compound vector addition and assignment
     constexpr auto operator+=(const vector& u) -> vector&
     {
         std::ranges::transform(*this, u, begin(), std::plus<>{});
         return *this;
     }
+    /// @brief Compound vector subtraction and assignment
     constexpr auto operator-=(const vector& u) -> vector&
     {
         std::ranges::transform(*this, u, begin(), std::minus<>{});
         return *this;
     }
+    /// @brief Compound scalar multiplication and assignment
     constexpr auto operator*=(scalar a) -> vector&
     {
         std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x *= a; });
         return *this;
     }
+    /// @brief Compound scalar division and assignment
     constexpr auto operator/=(scalar a) -> vector&
     {
         std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x /= a; });
         return *this;
     }
 
-    friend constexpr auto operator+(const vector& v, const vector& u) -> vector
-    {
-        return apply_elementwise(v, u, std::plus<>{});
-    }
-    friend constexpr auto operator-(const vector& v, const vector& u) -> vector
-    {
-        return apply_elementwise(v, u, std::minus<>{});
-    }
+    /// @}
 
+    /// @name Vector space operations
+    /// @{
+
+    /// @brief Vector negation
     friend constexpr auto operator-(const vector& v) -> vector
     {
         return apply_elementwise(v, std::negate<>{});
     }
 
+    /// @brief Vector addition
+    friend constexpr auto operator+(const vector& v, const vector& u) -> vector
+    {
+        return apply_elementwise(v, u, std::plus<>{});
+    }
+    /// @brief Vector subtraction
+    friend constexpr auto operator-(const vector& v, const vector& u) -> vector
+    {
+        return apply_elementwise(v, u, std::minus<>{});
+    }
+
+    /// @brief Scalar multiplication
     friend constexpr auto operator*(scalar a, const vector& v) -> vector
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) {
             return a * x;
         });
     }
+    /// @brief Scalar multiplication
     friend constexpr auto operator*(const vector& v, scalar a) -> vector
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) {
             return x * a;
         });
     }
+    /// @brief Scalar division
     friend constexpr auto operator/(const vector& v, scalar a) -> vector
     {
         return apply_elementwise(v, [a = std::move(a)](const auto& x) {
@@ -144,23 +228,25 @@ class vector {
         });
     }
 
+    /// @}
+
+    /// @brief Compare two vectors for element-wise equality
     friend constexpr auto operator==(const vector&, const vector&)
         -> bool = default;
 };
 
 }  // namespace turtle
 
-template <class Frame>
-struct fmt::formatter<turtle::vector<Frame>>
-    : fmt::formatter<typename Frame::scalar> {
+template <class F>
+struct fmt::formatter<turtle::vector<F>> : fmt::formatter<typename F::scalar> {
     template <class FormatContext>
-    auto format(const turtle::vector<Frame>& v, FormatContext& ctx)
+    auto format(const turtle::vector<F>& v, FormatContext& ctx)
     {
-        using T = typename Frame::scalar;
+        using T = typename F::scalar;
 
         auto&& out = ctx.out();
 
-        format_to(out, "[{}] (", Frame::name);
+        format_to(out, "[{}] (", F::name);
         formatter<T>::format(v.x(), ctx);
         format_to(out, ", ");
         formatter<T>::format(v.y(), ctx);

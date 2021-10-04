@@ -24,7 +24,13 @@ class point {
     static constexpr auto in_world_v = World::tree::template contains_v<F>;
 
   public:
-    using world = World;  ///< Associated kinematic world
+    /// @name Kinematic types
+    /// @{
+
+    /// @brief Associated kinematic world
+    using world = World;
+
+    /// @}
 
     /// @brief Constructs a point at the world origin
     /// @note Fixed with respect to `world::root`
