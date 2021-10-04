@@ -34,19 +34,19 @@ auto main() -> int
         expect(eq(T{1}, dot_product(w, u)));
     } | std::tuple<int, float, double>{};
 
-    test("magnitude") = []<class T>() {
+    test("norm") = []<class T>() {
         using N = turtle::frame<"N", T>;
         using V = typename N::vector;
 
-        expect(eq(T{}, magnitude(V{T{}, T{}, T{}})));
+        expect(eq(T{}, norm(V{T{}, T{}, T{}})));
 
-        expect(eq(T{1}, magnitude(V{T{1}, T{0}, T{0}})));
-        expect(eq(T{1}, magnitude(V{T{0}, T{1}, T{0}})));
-        expect(eq(T{1}, magnitude(V{T{0}, T{0}, T{1}})));
+        expect(eq(T{1}, norm(V{T{1}, T{0}, T{0}})));
+        expect(eq(T{1}, norm(V{T{0}, T{1}, T{0}})));
+        expect(eq(T{1}, norm(V{T{0}, T{0}, T{1}})));
 
-        expect(eq(T{2}, magnitude(V{T{2}, T{0}, T{0}})));
+        expect(eq(T{2}, norm(V{T{2}, T{0}, T{0}})));
 
-        expect(eq(T{5}, magnitude(V{T{3}, T{4}, T{0}})));
+        expect(eq(T{5}, norm(V{T{3}, T{4}, T{0}})));
     } | std::tuple<float, double>{};
 
     test("normalized magnitude") = []<class T>() {
@@ -54,7 +54,7 @@ auto main() -> int
         using V = typename N::vector;
 
         const auto f = [](auto x, auto y, auto z) {
-            return magnitude(normalized(V{T(x), T(y), T(z)}));
+            return norm(normalized(V{T(x), T(y), T(z)}));
         };
 
         for (const auto& v : {f(1, 0, 0), f(1, 1, 0), f(1, 1, 1)}) {
