@@ -27,6 +27,10 @@ class world : Os... {
     using root = typename FrameTree::root;
     using scalar = typename root::scalar;
 
+    using point = turtle::point<world>;
+
+    constexpr world() = default;
+
     template <class... Args>
     constexpr world(Args&&... args) : Os(std::forward<Args>(args))...
     {}
@@ -69,7 +73,6 @@ class world : Os... {
     template <class From, class To>
     constexpr auto express() const -> orientation<From, To>
     {
-
         return express<From>().inverse() * express<To>();
     }
 };
