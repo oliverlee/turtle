@@ -6,7 +6,8 @@ A reference frame library
 A library for kinematics calculations that does all the book keeping for you.
 Think
 [sympy.physics.vector](https://docs.sympy.org/latest/modules/physics/vector/index.html)
-but in C++ and strongly typed.
+but in C++ and strongly typed. And for those coming from Python -
+[fmt](https://fmt.dev/latest/index.html) is used for formatting.
 
 ~~~cpp
 #include "turtle/turtle.hpp"
@@ -38,8 +39,6 @@ auto main() -> int
 ~~~
 
 This is a work in progress.
-
-[fmt](https://fmt.dev/latest/index.html) is used for formatting.
 
 ### Building
 Concepts and ranges are used in this library, so you'll need a compiler with
