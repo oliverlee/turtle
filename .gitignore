@@ -3,6 +3,3 @@
 
 # ignore user local bazelrc
 /.bazelrc.user
-
-# ignore generated docs
-/build-doc

@@ -9,9 +9,9 @@ exports_files(
     visibility = ["//:__subpackages__"],
 )
 
-cc_library(
-    name = "turtle",
-    hdrs = [
+filegroup(
+    name = "headers",
+    srcs = [
         "include/turtle/frame.hpp",
         "include/turtle/fwd.hpp",
         "include/turtle/meta.hpp",
@@ -26,6 +26,12 @@ cc_library(
         "include/turtle/vector_ops.hpp",
         "include/turtle/world.hpp",
     ],
+    visibility = ["@mcss//:__pkg__"],
+)
+
+cc_library(
+    name = "turtle",
+    hdrs = [":headers"],
     copts = PROJECT_DEFAULT_COPTS,
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
