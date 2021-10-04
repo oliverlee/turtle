@@ -96,9 +96,16 @@ jobs:
         sudo apt-get install -y clang-format-${LLVM_VERSION}
         clang-format-${LLVM_VERSION} --version
 
-    - name: Run clang-format
+    - name: Install buildifier
       run: |
-        ./run_format.sh clang-format-${LLVM_VERSION}
+        go get -u github.com/bazelbuild/buildtools/buildifier
+        export PATH=$PATH:$(go env GOPATH)/bin
+        buildifier --version
+
+    - name: Run clang-format and buildifier
+      run: |
+        export PATH=$PATH:$(go env GOPATH)/bin
+        ./run_format.sh clang-format-${LLVM_VERSION} buildifier
         git --no-pager diff
         git update-index --really-refresh
         git --no-pager diff
