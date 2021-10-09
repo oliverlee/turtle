@@ -1,4 +1,4 @@
-build --repo_env='BAZEL_CXXOPTS=-std=c++20'
+build --cxxopt='-std=c++20'
 build --verbose_failures
 build --show_result='100'
 

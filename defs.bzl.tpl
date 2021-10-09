@@ -31,5 +31,3 @@ GCC_CXX_WARN_OPTS = [
 
 PROJECT_DEFAULT_COPTS = COMMON_CXX_WARN_OPTS + %{compiler_name}_CXX_WARN_OPTS
 
-PROJECT_LLVM_WORKAROUND_DEPS = ["@llvm//:c++", "@llvm//:clang"] if "%{compiler_name}" == "CLANG" else []
-

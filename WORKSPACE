@@ -20,8 +20,8 @@ http_archive(
 new_git_repository(
     name = "fmt",
     build_file = "@//:external/fmt.BUILD",
-    commit = "d9a731d4862891f274b63cef14bde0e5558a290f",
-    remote = "https://github.com/fmtlib/fmt/",
+    commit = "274d10ed06d54d8c5c7b2a6072225e470c1e7c9f",
+    remote = "https://github.com/oliverlee/fmt/",
 )
 
 new_git_repository(
@@ -59,29 +59,4 @@ new_git_repository(
     build_file = "@//:external/m.css.BUILD",
     commit = "9385194fa3392a7162e7535cc2478814e382ff8a",
     remote = "https://github.com/mosra/m.css/",
-)
-
-# https://github.com/bazelbuild/bazel/issues/8846
-new_local_repository(
-    name = "llvm",
-    build_file_content = """
-package(default_visibility = ["//visibility:public"])
-cc_library(
-  name = "c++",
-  hdrs = glob(["include/c++/v1/**/*"]),
-  includes = [
-    "include/c++/v1",
-  ],
-  strip_include_prefix = "include/c++/v1",
-)
-cc_library(
-  name = "clang",
-  hdrs = glob(["lib/clang/13.0.0/include/**/*"]),
-  includes = [
-    "lib/clang/13.0.0/include",
-  ],
-  strip_include_prefix = "lib/clang/13.0.0/include",
-)
-""",
-    path = "/usr/lib/llvm-13/",
 )

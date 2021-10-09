@@ -1,7 +1,6 @@
 load(
     "@local_config//:defs.bzl",
     "PROJECT_DEFAULT_COPTS",
-    "PROJECT_LLVM_WORKAROUND_DEPS",
 )
 
 exports_files(
@@ -38,5 +37,5 @@ cc_library(
     deps = [
         "@fmt",
         "@metal",
-    ] + PROJECT_LLVM_WORKAROUND_DEPS,
+    ],
 )
