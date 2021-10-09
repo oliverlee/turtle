@@ -116,6 +116,7 @@ class world : Os... {
     /// frame `To`, returning the composed orientation of `To` relative `From`.
     template <kinematic::frame From, kinematic::frame To>
     [[nodiscard]] constexpr auto express() const -> std::enable_if_t<
+        // NOLINTNEXTLINE(misc-redundant-expression)
         tree::template contains_v<From> && tree::template contains_v<To>,
         orientation<From, To>>
     {

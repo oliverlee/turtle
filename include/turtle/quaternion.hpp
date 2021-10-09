@@ -242,6 +242,8 @@ rotate(const vector<F>& v, const quaternion<typename F::scalar>& qr)
 
     auto const qo = qr * quaternion{v} * qr.conjugate();
 
+    // TODO: use a better check for zero scalar
+    // NOLINTNEXTLINE(readability-magic-numbers)
     assert(1e-10 > (qo.w() * qo.w() / qo.squared_norm()));
     return {qo.x(), qo.y(), qo.z()};
 }
