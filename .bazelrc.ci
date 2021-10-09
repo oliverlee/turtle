@@ -12,7 +12,7 @@ build --terminal_columns=120
 build:gcc    --announce_rc
 
 # https://github.com/bazelbuild/bazel/issues/13071#issue-812484249
-build:clang --copt -stdlib=libc++
+build:clang --cxxopt -stdlib=libc++
 build:clang --linkopt -lc++
 build:clang --linkopt -lm
 build:clang -s
