@@ -1,0 +1,5 @@
+InheritParentConfig: true
+Checks: >
+    # allow magic numbers in tests,
+    -readability-magic-numbers,
+
