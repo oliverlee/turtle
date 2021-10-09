@@ -13,6 +13,14 @@
 #include <ranges>
 #include <utility>
 
+// Until Clang has better support for P0896R4
+#ifdef __clang__
+#define RANGES(algo, rng, ...)                                                 \
+    std::algo((rng).begin(), (rng).end(), __VA_ARGS__)
+#else
+#define RANGES(algo, rng, ...) std::ranges::algo(rng, __VA_ARGS__)
+#endif
+
 namespace turtle {
 
 /// @brief Reference frame bound 3D vector
@@ -162,25 +170,25 @@ class vector {
     /// @brief Compound vector addition and assignment
     constexpr auto operator+=(const vector& u) -> vector&
     {
-        std::ranges::transform(*this, u, begin(), std::plus<>{});
+        RANGES(transform, *this, u, begin(), std::plus<>{});
         return *this;
     }
     /// @brief Compound vector subtraction and assignment
     constexpr auto operator-=(const vector& u) -> vector&
     {
-        std::ranges::transform(*this, u, begin(), std::minus<>{});
+        RANGES(transform, *this, u, begin(), std::minus<>{});
         return *this;
     }
     /// @brief Compound scalar multiplication and assignment
     constexpr auto operator*=(scalar a) -> vector&
     {
-        std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x *= a; });
+        RANGES(for_each, *this, [a = std::move(a)](auto& x) { x *= a; });
         return *this;
     }
     /// @brief Compound scalar division and assignment
     constexpr auto operator/=(scalar a) -> vector&
     {
-        std::ranges::for_each(*this, [a = std::move(a)](auto& x) { x /= a; });
+        RANGES(for_each, *this, [a = std::move(a)](auto& x) { x /= a; });
         return *this;
     }
 
