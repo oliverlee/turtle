@@ -14,7 +14,6 @@ build:gcc    --announce_rc
 # https://github.com/bazelbuild/bazel/issues/13071#issue-812484249
 build:clang --repo_env='BAZEL_CXXOPTS=-stdlib=libc++'
 build:clang --repo_env='BAZEL_LINKLIBS=-lc++:-lm'
-build:clang --sandbox_debug
 
 test --test_output=all
 test --test_verbose_timeout_warnings
