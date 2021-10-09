@@ -5,6 +5,7 @@
 #include "util/zip_transform_iterator.hpp"
 
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 
 #include <algorithm>
 #include <array>
@@ -245,8 +246,13 @@ class vector {
 
 }  // namespace turtle
 
+namespace fmt {
+
+template <class F, class Char>
+struct is_range<turtle::vector<F>, Char> : std::false_type {};
+
 template <class F>
-struct fmt::formatter<turtle::vector<F>> : fmt::formatter<typename F::scalar> {
+struct formatter<turtle::vector<F>> : formatter<typename F::scalar> {
     template <class FormatContext>
     auto format(const turtle::vector<F>& v, FormatContext& ctx)
     {
@@ -265,3 +271,5 @@ struct fmt::formatter<turtle::vector<F>> : fmt::formatter<typename F::scalar> {
         return out;
     }
 };
+
+}  // namespace fmt

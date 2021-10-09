@@ -5,6 +5,7 @@
 #include "vector_ops.hpp"
 
 #include "fmt/format.h"
+#include "fmt/ranges.h"
 
 #include <array>
 #include <cassert>
@@ -223,8 +224,13 @@ rotate(const vector<F>& v, const quaternion<typename F::scalar>& qr)
 
 }  // namespace turtle
 
+namespace fmt {
+
+template <class T, class Char>
+struct is_range<turtle::quaternion<T>, Char> : std::false_type {};
+
 template <class T>
-struct fmt::formatter<turtle::quaternion<T>> : fmt::formatter<T> {
+struct formatter<turtle::quaternion<T>> : formatter<T> {
     template <class FormatContext>
     auto format(const turtle::quaternion<T>& q, FormatContext& ctx)
     {
@@ -243,3 +249,5 @@ struct fmt::formatter<turtle::quaternion<T>> : fmt::formatter<T> {
         return out;
     }
 };
+
+}  // namespace fmt

@@ -14,6 +14,18 @@ cc_library(
 )
 
 cc_test(
+    name = "formatter",
+    size = "small",
+    srcs = ["formatter.cpp"],
+    copts = PROJECT_DEFAULT_COPTS,
+    deps = [
+        "//:turtle",
+        "@fmt",
+        "@ut",
+    ],
+)
+
+cc_test(
     name = "frame",
     size = "small",
     srcs = ["frame.cpp"],
