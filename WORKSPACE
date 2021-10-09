@@ -20,8 +20,8 @@ http_archive(
 new_git_repository(
     name = "fmt",
     build_file = "@//:external/fmt.BUILD",
-    commit = "d9a731d4862891f274b63cef14bde0e5558a290f",
-    remote = "https://github.com/fmtlib/fmt/",
+    commit = "274d10ed06d54d8c5c7b2a6072225e470c1e7c9f",
+    remote = "https://github.com/oliverlee/fmt/",
 )
 
 new_git_repository(
