@@ -46,4 +46,8 @@ struct zip_transform_iterator {
     }
 };
 
+template <class Iter1, class Iter2, class BinOp>
+zip_transform_iterator(Iter1, Iter2, BinOp)
+    -> zip_transform_iterator<Iter1, Iter2, BinOp>;
+
 }  // namespace turtle::util
