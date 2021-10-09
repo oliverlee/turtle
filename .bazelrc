@@ -6,6 +6,9 @@ build --show_result='100'
 build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
 build:clang-tidy --output_groups=report
 
+build:clang-tidy --repo_env='BAZEL_CXXOPTS=-stdlib=libc++'
+build:clang-tidy --repo_env='BAZEL_LINKLIBS=-lc++:-lm'
+
 # Sanitizers don't work too well on Apple-Clang, use GCC instead
 
 # Address sanitizer

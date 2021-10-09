@@ -126,12 +126,23 @@ jobs:
       - name: Install clang-tidy ${{ env.LLVM_VERSION }}
         run: |
           sudo .github/workflows/llvm.sh ${LLVM_VERSION}
+
+          sudo apt-get install -y \
+            clang-${LLVM_VERSION} \
+            libc++1-${LLVM_VERSION} libc++abi1-${LLVM_VERSION} \
+            libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
+
           sudo apt-get install -y clang-tidy-${LLVM_VERSION}
 
       - name: Link clang-tidy to clang-tidy-${{ env.LLVM_VERSION }}
         run: |
           sudo ln -s $(which clang-tidy-${LLVM_VERSION}) /usr/bin/clang-tidy
           clang-tidy --version
+
+      - name: Set CC in CI bazelrc
+        run: |
+          echo "build --repo_env='CC=$(which clang-${{ env.LLVM_VERSION }})'" >> .bazelrc.ci
+          tail .bazelrc.ci
 
       - id: cache-bazel-install
         uses: actions/cache@v2
@@ -170,4 +181,4 @@ jobs:
 
       - name: Lint
         run: |
-          CC=clang bazel build --config=clang-tidy //...
+          bazel build --config=clang-tidy //...
