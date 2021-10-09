@@ -78,17 +78,15 @@ class world : Os... {
 
   private:
     template <class O, class End>
-    constexpr auto compose_path(O ori, metal::list<End>) const -> O
+    constexpr auto compose_path(O&& ori, metal::list<End>) const -> O&&
     {
-        return ori;
+        return std::forward<O>(ori);
     }
     template <class O, class A, class B, class... Frames>
-    constexpr auto compose_path(O ori, metal::list<A, B, Frames...>) const
-        -> decltype(compose_path(std::move(ori) * get<A, B>(),
-                                 metal::list<B, Frames...>{}))
+    constexpr auto compose_path(O&& ori, metal::list<A, B, Frames...>) const
     {
-        return compose_path(
-            std::move(ori) * get<A, B>(), metal::list<B, Frames...>{});
+        return std::forward<O>(ori) *
+               compose_path(get<A, B>(), metal::list<B, Frames...>{});
     }
 
   public:
@@ -98,9 +96,10 @@ class world : Os... {
     ///
     /// Composes rotations along the path from world root to frame `To`,
     /// returning the composed orientation of `To` relative root.
-    template <class To>
-    constexpr auto express() const -> decltype(compose_path(
-        orientation<root, root>{}, typename tree::template path_to_t<To>{}))
+    template <kinematic::frame To>
+    constexpr auto express() const
+        -> std::enable_if_t<tree::template contains_v<To>,
+                            orientation<root, To>>
     {
         return compose_path(
             orientation<root, root>{}, typename tree::template path_to_t<To>{});
@@ -112,8 +111,10 @@ class world : Os... {
     ///
     /// Composes rotations along the path from frame `From` to world root to
     /// frame `To`, returning the composed orientation of `To` relative `From`.
-    template <class From, class To>
-    constexpr auto express() const -> orientation<From, To>
+    template <kinematic::frame From, kinematic::frame To>
+    constexpr auto express() const -> std::enable_if_t<
+        tree::template contains_v<From> && tree::template contains_v<To>,
+        orientation<From, To>>
     {
         return express<From>().inverse() * express<To>();
     }
