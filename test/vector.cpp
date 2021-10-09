@@ -80,14 +80,14 @@ auto main() -> int
     test("vector is a const range") = [] {
         constexpr auto v = turtle::vector<N>{};
 
-        expect(3_l == std::ranges::count(v, 0));
+        expect(3_l == std::count(v.cbegin(), v.cend(), 0));
     };
 
     test("vector is a mutable range") = [] {
         auto v = turtle::vector<N>{};
-        std::ranges::for_each(v, [](auto& x) { ++x; });
+        std::for_each(v.begin(), v.end(), [](auto& x) { ++x; });
 
-        expect(3_l == std::ranges::count(v, 1));
+        expect(3_l == std::count(v.cbegin(), v.cend(), 1));
     };
 
     test("vector is equality comparable") = [] {

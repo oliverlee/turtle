@@ -14,14 +14,6 @@
 #include <ranges>
 #include <utility>
 
-// Until Clang has better support for P0896R4
-#ifdef __clang__
-#define RANGES(algo, rng, ...)                                                 \
-    std::algo((rng).begin(), (rng).end(), __VA_ARGS__)
-#else
-#define RANGES(algo, rng, ...) std::ranges::algo(rng, __VA_ARGS__)
-#endif
-
 namespace turtle {
 
 /// @brief Reference frame bound 3D vector
@@ -30,8 +22,10 @@ namespace turtle {
 /// A 3D vector belonging to a reference frame. A vector value is always tied to
 /// the associated frame F but may be expressed in another frame via a world
 /// instance.
-template <kinematic::frame F>
+template <kinematic::frame F, class T = typename F::scalar>
 class vector {
+    static_assert(std::is_same_v<typename F::scalar, T>);
+
   public:
     /// @name Kinematic types
     /// @{
@@ -171,25 +165,25 @@ class vector {
     /// @brief Compound vector addition and assignment
     constexpr auto operator+=(const vector& u) -> vector&
     {
-        RANGES(transform, *this, u, begin(), std::plus<>{});
+        std::transform(cbegin(), cend(), u.cbegin(), begin(), std::plus<>{});
         return *this;
     }
     /// @brief Compound vector subtraction and assignment
     constexpr auto operator-=(const vector& u) -> vector&
     {
-        RANGES(transform, *this, u, begin(), std::minus<>{});
+        std::transform(cbegin(), cend(), u.cbegin(), begin(), std::minus<>{});
         return *this;
     }
     /// @brief Compound scalar multiplication and assignment
     constexpr auto operator*=(scalar a) -> vector&
     {
-        RANGES(for_each, *this, [a = std::move(a)](auto& x) { x *= a; });
+        std::for_each(begin(), end(), [a = std::move(a)](auto& x) { x *= a; });
         return *this;
     }
     /// @brief Compound scalar division and assignment
     constexpr auto operator/=(scalar a) -> vector&
     {
-        RANGES(for_each, *this, [a = std::move(a)](auto& x) { x /= a; });
+        std::for_each(begin(), end(), [a = std::move(a)](auto& x) { x /= a; });
         return *this;
     }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fwd.hpp"
 #include "vector.hpp"
 
 #include "fmt/format.h"
@@ -13,8 +14,8 @@ namespace turtle {
 /// @tparam T Scalar type
 ///
 /// A Cartesian reference frame allowing definition of relative distance and
-/// motion. These reference frames have no origin and related to other frames by
-/// an `orientation`.
+/// motion. These reference frames have no origin and are related to other
+/// frames by an `orientation`.
 template <detail::descriptor Name, class T = DefaultScalar>
 struct frame {
     using scalar = T;  ///< Frame scalar type
@@ -35,8 +36,10 @@ struct frame {
 
     /// @brief Unit vector in the frame's x-direction
     static constexpr vector x{T{1}, T{}, T{}};
+
     /// @brief Unit vector in the frame's y-direction
     static constexpr vector y{T{}, T{1}, T{}};
+
     /// @brief Unit vector in the frame's z-direction
     static constexpr vector z{T{}, T{}, T{1}};
 
