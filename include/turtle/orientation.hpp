@@ -62,7 +62,7 @@ class orientation {
     /// @brief Obtains the rotation angle
     /// @note This performs an internal calculation and may be sensitive to
     /// numerical stability issues.
-    auto angle() const -> scalar
+    [[nodiscard]] auto angle() const -> scalar
     {
         // https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
         return scalar{2} * std::atan2(norm(vector_part()), rotation_.w());
@@ -71,27 +71,27 @@ class orientation {
     /// @brief Obtains the rotation axis
     /// @note This performs an internal calculation and may be sensitive to
     /// numerical stability issues.
-    auto axis() const -> typename From::vector
+    [[nodiscard]] auto axis() const -> typename From::vector
     {
         return normalized(vector_part());
     }
 
     /// @brief Obtains the rotation as a quaternion
-    constexpr auto rotation() const& noexcept -> const quaternion&
+    [[nodiscard]] constexpr auto rotation() const& noexcept -> const quaternion&
     {
         return rotation_;
     }
 
     /// @brief Calculates the inverse orientation starting at `To` and ending at
     /// `From`
-    constexpr auto inverse() const -> orientation<To, From>
+    [[nodiscard]] constexpr auto inverse() const -> orientation<To, From>
     {
         return orientation<To, From>{rotation_.conjugate()};
     }
 
     /// @brief Applies the rotation and converts a vector from `From` to `To`
     /// @param v Vector bound to frame `From`
-    constexpr auto rotate(const typename From::vector& v) const ->
+    [[nodiscard]] constexpr auto rotate(const typename From::vector& v) const ->
         typename To::vector
     {
         const auto u = turtle::rotate(v, rotation_.conjugate());
@@ -110,7 +110,7 @@ class orientation {
         return orientation<From, C>{ori1.rotation() * ori2.rotation()};
     }
 
-    constexpr auto vector_part() const -> typename From::vector
+    [[nodiscard]] constexpr auto vector_part() const -> typename From::vector
     {
         return {rotation_.x(), rotation_.y(), rotation_.z()};
     }

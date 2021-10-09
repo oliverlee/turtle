@@ -102,7 +102,7 @@ class quaternion {
     /// @brief Calculates the quaternion conjugate
     ///
     /// For unit quaternions, defines an inverse rotation.
-    constexpr auto conjugate() const -> quaternion
+    [[nodiscard]] constexpr auto conjugate() const -> quaternion
     {
         return {w(), -x(), -y(), -z()};
     };
@@ -110,7 +110,7 @@ class quaternion {
     /// @brief Calculates the squared norm
     /// @note This may be used to determine if a quaternion has norm 1 more
     /// efficiently than calculating the actual norm.
-    constexpr auto squared_norm() const -> T
+    [[nodiscard]] constexpr auto squared_norm() const -> T
     {
         return std::inner_product(cbegin(), cend(), cbegin(), T{});
     }
@@ -141,28 +141,40 @@ class quaternion {
     /// @copydoc w()
     constexpr auto w() && -> scalar&& { return std::get<0>(data_); }
     /// @copydoc w()
-    constexpr auto w() const& -> const scalar& { return std::get<0>(data_); }
+    [[nodiscard]] constexpr auto w() const& -> const scalar&
+    {
+        return std::get<0>(data_);
+    }
 
     /// @brief Returns a reference to the x component
     constexpr auto x() & -> scalar& { return std::get<1>(data_); }
     /// @copydoc x()
     constexpr auto x() && -> scalar&& { return std::get<1>(data_); }
     /// @copydoc x()
-    constexpr auto x() const& -> const scalar& { return std::get<1>(data_); }
+    [[nodiscard]] constexpr auto x() const& -> const scalar&
+    {
+        return std::get<1>(data_);
+    }
 
     /// @brief Returns a reference to the y component
     constexpr auto y() & -> scalar& { return std::get<2>(data_); }
     /// @copydoc y()
     constexpr auto y() && -> scalar&& { return std::get<2>(data_); }
     /// @copydoc y()
-    constexpr auto y() const& -> const scalar& { return std::get<2>(data_); }
+    [[nodiscard]] constexpr auto y() const& -> const scalar&
+    {
+        return std::get<2>(data_);
+    }
 
     /// @brief Returns a reference to the z component
     constexpr auto z() & -> scalar& { return std::get<3>(data_); }
     /// @copydoc z()
     constexpr auto z() && -> scalar&& { return std::get<3>(data_); }
     /// @copydoc z()
-    constexpr auto z() const& -> const scalar& { return std::get<3>(data_); }
+    [[nodiscard]] constexpr auto z() const& -> const scalar&
+    {
+        return std::get<3>(data_);
+    }
 
     /// @}
 
@@ -172,16 +184,28 @@ class quaternion {
     /// @brief Returns an iterator to the beginning of the underlying data
     constexpr auto begin() & -> iterator { return data_.begin(); }
     /// @copydoc begin
-    constexpr auto begin() const& -> const_iterator { return data_.begin(); }
+    [[nodiscard]] constexpr auto begin() const& -> const_iterator
+    {
+        return data_.begin();
+    }
     /// @copydoc begin
-    constexpr auto cbegin() const& -> const_iterator { return data_.cbegin(); }
+    [[nodiscard]] constexpr auto cbegin() const& -> const_iterator
+    {
+        return data_.cbegin();
+    }
 
     /// @brief Returns an iterator to the end of the underlying data
     constexpr auto end() & -> iterator { return data_.end(); }
     /// @copydoc end
-    constexpr auto end() const& -> const_iterator { return data_.end(); }
+    [[nodiscard]] constexpr auto end() const& -> const_iterator
+    {
+        return data_.end();
+    }
     /// @copydoc end
-    constexpr auto cend() const& -> const_iterator { return data_.cend(); }
+    [[nodiscard]] constexpr auto cend() const& -> const_iterator
+    {
+        return data_.cend();
+    }
 
     /// @}
 };
