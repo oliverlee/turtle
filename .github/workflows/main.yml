@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  BAZEL_VERSION: "4.2.1"
+  BAZEL_VERSION: "5.0.0-pre.20210929.1"
   GCC_VERSION: 11
   LLVM_VERSION: 14
 
@@ -81,6 +81,9 @@ jobs:
           ./install.sh --user
           rm -f install.sh
         fi
+
+        sudo rm /usr/local/bin/bazel 
+        sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel 
 
         cat .bazelrc.ci >> .bazelrc
         bazel --version
@@ -159,7 +162,11 @@ jobs:
             rm -f install.sh
           fi
 
+          sudo rm /usr/local/bin/bazel 
+          sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel 
+
           cat .bazelrc.ci >> .bazelrc
+          bazel --version
 
       - name: Lint
         run: |
