@@ -7,9 +7,9 @@ on:
     branches: [ master ]
 
 env:
-  BAZEL_VERSION: "4.2.1"
+  BAZEL_VERSION: "5.0.0-pre.20210929.1"
   GCC_VERSION: 11
-  LLVM_VERSION: 13
+  LLVM_VERSION: 14
 
 jobs:
   test:
@@ -27,8 +27,13 @@ jobs:
       run: |
         if [[ "${{ matrix.config }}" == "clang"  ]]; then
           sudo .github/workflows/llvm.sh ${LLVM_VERSION}
-          sudo apt-get install -y clang-${LLVM_VERSION} libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
-          echo "compiler=clang++-${LLVM_VERSION}" >> $GITHUB_ENV
+
+          sudo apt-get install -y \
+            clang-${LLVM_VERSION} \
+            libc++1-${LLVM_VERSION} libc++abi1-${LLVM_VERSION} \
+            libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
+
+          echo "compiler=$(which clang-${LLVM_VERSION})" >> $GITHUB_ENV
         else
           sudo apt-get update
           sudo apt-get install -y g++-${GCC_VERSION}
@@ -44,7 +49,8 @@ jobs:
     - name: Suppress GCC bug 'https://gcc.gnu.org/bugzilla//show_bug.cgi?id=100878'
       if: matrix.config != 'clang' && matrix.config != 'gcc'
       run: |
-        printf '%s\n%s\n'  $(${{ env.compiler }} -dumpfullversion -dumpversion) 11.1.0 | sort --check --version-sort
+        printf '%s\n%s\n'  $(${{ env.compiler }} -dumpfullversion -dumpversion) 11.1.0 \
+          | sort --check --version-sort
         echo "build --copt -Wno-nonnull" >> .bazelrc.ci
 
     - id: cache-bazel-install
@@ -76,12 +82,14 @@ jobs:
           rm -f install.sh
         fi
 
+        sudo rm /usr/local/bin/bazel 
+        sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel 
+
         cat .bazelrc.ci >> .bazelrc
         bazel --version
 
     - name: Build and Test
       run: |
-        export CC=${{ env.compiler }}
         bazel build --config=${{ matrix.config }} //...
         bazel test --config=${{ matrix.config }} //...
 
@@ -154,7 +162,11 @@ jobs:
             rm -f install.sh
           fi
 
+          sudo rm /usr/local/bin/bazel 
+          sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel 
+
           cat .bazelrc.ci >> .bazelrc
+          bazel --version
 
       - name: Lint
         run: |

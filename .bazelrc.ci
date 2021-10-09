@@ -12,11 +12,8 @@ build --terminal_columns=120
 build:gcc    --announce_rc
 
 # https://github.com/bazelbuild/bazel/issues/13071#issue-812484249
-build:clang --copt -stdlib=libc++
-build:clang --linkopt -lc++
-build:clang --linkopt -lm
-build:clang -s
-build:clang --sandbox_debug
+build:clang --repo_env='BAZEL_CXXOPTS=-stdlib=libc++'
+build:clang --repo_env='BAZEL_LINKLIBS=-lc++:-lm'
 
 test --test_output=all
 test --test_verbose_timeout_warnings

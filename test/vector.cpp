@@ -12,7 +12,7 @@
 #include <string_view>
 #include <type_traits>
 
-using N = turtle::frame<"N", int>;
+using N = turtle::frame<"N", double>;
 
 void test_disabled_comparisons()
 {
@@ -80,14 +80,14 @@ auto main() -> int
     test("vector is a const range") = [] {
         constexpr auto v = turtle::vector<N>{};
 
-        expect(3_l == std::ranges::count(v, 0));
+        expect(3_l == std::count(v.cbegin(), v.cend(), 0));
     };
 
     test("vector is a mutable range") = [] {
         auto v = turtle::vector<N>{};
-        std::ranges::for_each(v, [](auto& x) { ++x; });
+        std::for_each(v.begin(), v.end(), [](auto& x) { ++x; });
 
-        expect(3_l == std::ranges::count(v, 1));
+        expect(3_l == std::count(v.cbegin(), v.cend(), 1));
     };
 
     test("vector is equality comparable") = [] {
@@ -136,7 +136,7 @@ auto main() -> int
         constexpr auto a = 2;
         constexpr auto v = turtle::vector<N>{1, 2, 3};
 
-        constexpr auto u = turtle::vector<N>{0, 1, 1};
+        constexpr auto u = turtle::vector<N>{0.5, 1, 1.5};
         expect(eq(u, v / a));
     };
 
@@ -175,7 +175,7 @@ auto main() -> int
         auto v = turtle::vector<N>{1, 2, 3};
         v /= 2;
 
-        constexpr auto u = turtle::vector<N>{0, 1, 1};
+        constexpr auto u = turtle::vector<N>{0.5, 1, 1.5};
         expect(eq(u, v));
     };
 

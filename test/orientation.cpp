@@ -49,10 +49,10 @@ auto main() -> int
 
         const auto ori = turtle::orientation<B, C>{angle, axis};
 
-        constexpr auto tol = T(std::is_same_v<float, T> ? 1e-6 : 1e-12);
+        constexpr auto tol = T(std::is_same_v<float, T> ? 1e-7 : 1e-15);
 
         expect(within<tol>(angle, ori.angle()));
-        expect(eq(axis, ori.axis()));
+        expect(within<tol>(axis, ori.axis()));
     } | std::tuple<float, double>{};
 
     {
@@ -68,8 +68,8 @@ auto main() -> int
                 turtle::orientation<A, B>{angle, ori1.rotate(axis)};
 
             const auto ori12 = ori1 * ori2;
-            expect(within<1e-12>(2. * angle, ori12.angle()));
-            expect(eq(axis, ori12.axis()));
+            expect(within<1e-15>(2. * angle, ori12.angle()));
+            expect(within<1e-15>(axis, ori12.axis()));
         };
 
         test("orientation composable with same axis, inverse angle") = [&] {
@@ -78,7 +78,7 @@ auto main() -> int
 
             const auto ori12 = ori1 * ori2;
 
-            expect(within<1e-12>(0., ori12.angle()));
+            expect(within<1e-15>(0., ori12.angle()));
             expect(eq(turtle::quaternion{1., 0., 0., 0.}, ori12.rotation()));
         };
 
@@ -92,9 +92,9 @@ auto main() -> int
 
             const auto ori12 = ori1 * ori2;
 
-            expect(within<1e-12>(2. * std::numbers::pi / 3., ori12.angle()));
+            expect(within<1e-15>(2. * std::numbers::pi / 3., ori12.angle()));
             expect(
-                within<1e-12>(normalized(N::vector{1., 1., 1.}), ori12.axis()));
+                within<1e-15>(normalized(N::vector{1., 1., 1.}), ori12.axis()));
         };
     }
 }

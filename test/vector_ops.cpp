@@ -18,8 +18,8 @@ auto main() -> int
         using N = turtle::frame<"N", T>;
 
         constexpr auto v = turtle::vector<N>{};
-        constexpr auto u = turtle::vector<N>{T{1}, T{}, T{}};
-        constexpr auto w = turtle::vector<N>{T{1}, T{1}, T{}};
+        constexpr auto u = turtle::vector<N>{1, 0, 0};
+        constexpr auto w = turtle::vector<N>{1, 1, 0};
 
         expect(eq(T{}, dot_product(v, v)));
         expect(eq(T{1}, dot_product(u, u)));
@@ -33,15 +33,15 @@ auto main() -> int
 
         expect(eq(T{1}, dot_product(u, w)));
         expect(eq(T{1}, dot_product(w, u)));
-    } | std::tuple<int, float, double>{};
+    } | std::tuple<float, double>{};
 
     test("cross product") = []<class T>() {
         using N = turtle::frame<"N", T>;
         using V = typename N::vector;
 
         constexpr auto v = V{};
-        constexpr auto u = V{T{1}, T{}, T{}};
-        constexpr auto w = V{T{}, T{1}, T{}};
+        constexpr auto u = V{1, 0, 0};
+        constexpr auto w = V{0, 1, 0};
 
         expect(eq(V{}, cross_product(v, v)));
         expect(eq(V{}, cross_product(v, u)));
@@ -58,15 +58,15 @@ auto main() -> int
         using N = turtle::frame<"N", T>;
         using V = typename N::vector;
 
-        expect(eq(T{}, norm(V{T{}, T{}, T{}})));
+        expect(eq(T{}, norm(V{})));
 
-        expect(eq(T{1}, norm(V{T{1}, T{0}, T{0}})));
-        expect(eq(T{1}, norm(V{T{0}, T{1}, T{0}})));
-        expect(eq(T{1}, norm(V{T{0}, T{0}, T{1}})));
+        expect(eq(T{1}, norm(V{1, 0, 0})));
+        expect(eq(T{1}, norm(V{0, 1, 0})));
+        expect(eq(T{1}, norm(V{0, 0, 1})));
 
-        expect(eq(T{2}, norm(V{T{2}, T{0}, T{0}})));
+        expect(eq(T{2}, norm(V{2, 0, 0})));
 
-        expect(eq(T{5}, norm(V{T{3}, T{4}, T{0}})));
+        expect(eq(T{5}, norm(V{3, 4, 0})));
     } | std::tuple<float, double>{};
 
     test("normalized magnitude") = []<class T>() {
