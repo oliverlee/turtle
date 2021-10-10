@@ -10,6 +10,7 @@ env:
   BAZEL_VERSION: "5.0.0-pre.20210929.1"
   GCC_VERSION: 11
   LLVM_VERSION: 14
+  DOXYGEN_VERSION: "1.9.2"
 
 jobs:
   test:
@@ -157,9 +158,9 @@ jobs:
         with:
           path: |
             ~/.cache/bazel
-          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-${{ github.sha }}
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-clang-tidy-${{ github.sha }}
           restore-keys: |
-            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-
+            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-clang-tidy-
 
       - name: Setup Bazel
         run: |
@@ -182,3 +183,72 @@ jobs:
       - name: Lint
         run: |
           bazel build --config=clang-tidy //...
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Clang 9
+        run: |
+          sudo apt-get install -y libclang1-9 libclang-cpp9
+
+      - id: cache-doxygen-install
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/doxygen-*
+          key: ${{ matrix.os }}-doxygen-${{ env.DOXYGEN_VERSION }}
+
+      - id: cache-bazel-install
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/bin/bazel*
+            ~/.bazel
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}
+
+      - id: cache-bazel-out
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/bazel
+          key: ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-doxygen-${{ github.sha }}
+          restore-keys: |
+            ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-doxygen-
+
+      - name: Setup Doxygen ${{ env.DOXYGEN_VERSION }}
+        run: |
+          if [[ "${{ steps.cache-doxygen-install.outputs.cache-hit }}" != 'true' ]]; then
+            cd ${HOME}
+
+            TAR="doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz"
+            wget -O "${TAR}" "https://www.doxygen.nl/files/${TAR}"
+            tar -xf "${TAR}"
+
+            cd -
+          fi
+
+          sudo ln -s "${HOME}/doxygen-${DOXYGEN_VERSION}/bin/doxygen" /usr/local/bin/doxygen
+          doxygen --version
+
+      - name: Setup Bazel
+        run: |
+          if [[ "${{ steps.cache-bazel-install.outputs.cache-hit }}" != 'true' ]]; then
+            OS=linux
+            URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
+
+            wget -O install.sh "${URL}"
+            chmod +x install.sh
+            ./install.sh --user
+            rm -f install.sh
+          fi
+
+          sudo rm /usr/local/bin/bazel
+          sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel
+
+          cat .bazelrc.ci >> .bazelrc
+          bazel --version
+
+      - name: Generate documentation
+        run: |
+          bazel run @mcss//:doxygen
