@@ -11,7 +11,7 @@ namespace turtle {
 /// @brief A derivative of a vector quantity, taken with respect to a reference
 /// frame
 /// @tparam B Observation frame
-/// @tparam V Kinematic vector, where V::frame is the expressions frame
+/// @tparam V Kinematic vector, where V::frame is the expression frame
 /// @tparam D Derivative degree
 template <kinematic::frame B, kinematic::vector V, std::size_t D>
 struct derivative {

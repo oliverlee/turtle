@@ -31,7 +31,7 @@ auto main() -> int
 
     using P = decltype(w)::point;
 
-    constexpr auto p = P{};
+    auto p = P{};
     fmt::print("\ncreating a point p at w's origin {}\n", p);
     fmt::print("expressing p in {}\n", p.position<B>(w));
 
@@ -46,6 +46,14 @@ auto main() -> int
     constexpr auto va = velocity(A::vector{1, 0, 0});
     constexpr auto vb = velocity<B>(A::vector{1, 0, 0});
     fmt::print("{}\n{}", va, vb);
+
+    // change setters to ??
+    // p.set(position(B::vector{}));
+    // p.set(velocity<A>(B::vector{}));
+    p.velocity(velocity<A>(B::vector{0, 1, 0}));
+
+    auto x = p.velocity<N>(w);
+    (void)x;
 
     return 0;
 }
