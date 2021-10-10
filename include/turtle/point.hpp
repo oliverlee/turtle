@@ -61,7 +61,7 @@ class point {
     constexpr auto position(V v) -> void { displacement_ = v; }
 
     /// @brief Obtains the point's set position
-    constexpr auto position() const& -> const vector_variant&
+    [[nodiscard]] constexpr auto position() const& -> const vector_variant&
     {
         return displacement_;
     }
@@ -71,7 +71,7 @@ class point {
     /// @param w A world instance
     template <kinematic::frame F>
     requires in_world_v<F>
-    constexpr auto position(const world& w) const -> vector<F>
+    [[nodiscard]] constexpr auto position(const world& w) const -> vector<F>
     {
         return std::visit(
             [&w](const auto& v) { return v.template in<F>(w); }, position());

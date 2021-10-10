@@ -25,16 +25,16 @@ constexpr auto ulp_diff(const T& t, const T& u) -> std::size_t
 
 template <class T, class U>
 requires std::same_as<T, U> &&
-    (4 == sizeof(T)) constexpr auto ulp_diff(const T& t, const U& u)
-        -> std::size_t
+    (sizeof(std::int32_t) ==
+     sizeof(T)) constexpr auto ulp_diff(const T& t, const U& u) -> std::size_t
 {
     return detail::ulp_diff<std::int32_t>(t, u);
 }
 
 template <class T, class U>
 requires std::same_as<T, U> &&
-    (8 == sizeof(T)) constexpr auto ulp_diff(const T& t, const U& u)
-        -> std::size_t
+    (sizeof(std::int64_t) ==
+     sizeof(T)) constexpr auto ulp_diff(const T& t, const U& u) -> std::size_t
 {
     return detail::ulp_diff<std::int64_t>(t, u);
 }

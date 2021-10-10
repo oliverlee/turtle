@@ -53,6 +53,13 @@ Run the tests with
 
     bazel test //...
 
+### Linting
+Run `clang-tidy` with
+
+    bazel build --config=clang-tidy //...
+
+This will require an install of LLVM 14.
+
 ### Documentation
 Generate and view with
 

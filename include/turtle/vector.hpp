@@ -75,21 +75,30 @@ class vector {
     /// @copydoc x()
     constexpr auto x() && -> scalar&& { return std::get<0>(data_); }
     /// @copydoc x()
-    constexpr auto x() const& -> const scalar& { return std::get<0>(data_); }
+    [[nodiscard]] constexpr auto x() const& -> const scalar&
+    {
+        return std::get<0>(data_);
+    }
 
     /// @brief Returns a reference to the y component
     constexpr auto y() & -> scalar& { return std::get<1>(data_); }
     /// @copydoc y()
     constexpr auto y() && -> scalar&& { return std::get<1>(data_); }
     /// @copydoc y()
-    constexpr auto y() const& -> const scalar& { return std::get<1>(data_); }
+    [[nodiscard]] constexpr auto y() const& -> const scalar&
+    {
+        return std::get<1>(data_);
+    }
 
     /// @brief Returns a reference to the z component
     constexpr auto z() & -> scalar& { return std::get<2>(data_); }
     /// @copydoc z()
     constexpr auto z() && -> scalar&& { return std::get<2>(data_); }
     /// @copydoc z()
-    constexpr auto z() const& -> const scalar& { return std::get<2>(data_); }
+    [[nodiscard]] constexpr auto z() const& -> const scalar&
+    {
+        return std::get<2>(data_);
+    }
 
     /// @}
 
@@ -99,16 +108,28 @@ class vector {
     /// @brief Returns an iterator to the beginning of the underlying data
     constexpr auto begin() & -> iterator { return data_.begin(); }
     /// @copydoc begin
-    constexpr auto begin() const& -> const_iterator { return data_.begin(); }
+    [[nodiscard]] constexpr auto begin() const& -> const_iterator
+    {
+        return data_.begin();
+    }
     /// @copydoc begin
-    constexpr auto cbegin() const& -> const_iterator { return data_.cbegin(); }
+    [[nodiscard]] constexpr auto cbegin() const& -> const_iterator
+    {
+        return data_.cbegin();
+    }
 
     /// @brief Returns an iterator to the end of the underlying data
     constexpr auto end() & -> iterator { return data_.end(); }
     /// @copydoc end
-    constexpr auto end() const& -> const_iterator { return data_.end(); }
+    [[nodiscard]] constexpr auto end() const& -> const_iterator
+    {
+        return data_.end();
+    }
     /// @copydoc end
-    constexpr auto cend() const& -> const_iterator { return data_.cend(); }
+    [[nodiscard]] constexpr auto cend() const& -> const_iterator
+    {
+        return data_.cend();
+    }
 
     /// @}
 
@@ -121,7 +142,8 @@ class vector {
     /// vector
     /// @return This vector expressed in frame `To`
     template <kinematic::frame To>
-    auto in(const orientation<F, To>& ori) const -> typename To::vector
+    [[nodiscard]] auto in(const orientation<F, To>& ori) const ->
+        typename To::vector
     {
         return ori.rotate(*this);
     }
@@ -133,7 +155,7 @@ class vector {
     /// vector and `To`
     /// @return This vector expressed in frame `To`
     template <kinematic::frame To, kinematic::world World>
-    auto in(const World& world) const -> typename To::vector
+    [[nodiscard]] auto in(const World& world) const -> typename To::vector
     {
         return world.template express<frame, To>().rotate(*this);
     }

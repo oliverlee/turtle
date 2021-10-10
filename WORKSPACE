@@ -1,5 +1,9 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+load(
+    "@bazel_tools//tools/build_defs/repo:git.bzl",
+    "git_repository",
+    "new_git_repository",
+)
 load(
     ":configure.bzl",
     "configure_local_variables",
@@ -10,11 +14,10 @@ configure_local_variables(
     defs_template = "//:defs.bzl.tpl",
 )
 
-http_archive(
+git_repository(
     name = "bazel_clang_tidy",
-    sha256 = "9943da5967e470a5c0165233242e51538b2a0fa11b15820d399314082cd99a09",
-    strip_prefix = "bazel_clang_tidy-1c3a983c054a41be73ac128e3d842a940850b5fe",
-    urls = ["https://github.com/erenon/bazel_clang_tidy/archive/1c3a983c054a41be73ac128e3d842a940850b5fe.zip"],
+    commit = "9871a95dbb150dc595aa91355fe99c500196cf3c",
+    remote = "https://github.com/erenon/bazel_clang_tidy",
 )
 
 new_git_repository(

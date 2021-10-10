@@ -71,19 +71,22 @@ class world : Os... {
 
     /// @copydoc get
     template <class From, class To>
-    constexpr auto get() const& noexcept -> const orientation<From, To>&
+    [[nodiscard]] constexpr auto get() const& noexcept
+        -> const orientation<From, To>&
     {
         return static_cast<const orientation<From, To>&>(*this);
     }
 
   private:
     template <class O, class End>
-    constexpr auto compose_path(O&& ori, metal::list<End>) const -> O&&
+    [[nodiscard]] constexpr auto compose_path(O&& ori, metal::list<End>) const
+        -> O&&
     {
         return std::forward<O>(ori);
     }
     template <class O, class A, class B, class... Frames>
-    constexpr auto compose_path(O&& ori, metal::list<A, B, Frames...>) const
+    [[nodiscard]] constexpr auto
+    compose_path(O&& ori, metal::list<A, B, Frames...>) const
     {
         return std::forward<O>(ori) *
                compose_path(get<A, B>(), metal::list<B, Frames...>{});
@@ -97,7 +100,7 @@ class world : Os... {
     /// Composes rotations along the path from world root to frame `To`,
     /// returning the composed orientation of `To` relative root.
     template <kinematic::frame To>
-    constexpr auto express() const
+    [[nodiscard]] auto express() const
         -> std::enable_if_t<tree::template contains_v<To>,
                             orientation<root, To>>
     {
@@ -112,7 +115,8 @@ class world : Os... {
     /// Composes rotations along the path from frame `From` to world root to
     /// frame `To`, returning the composed orientation of `To` relative `From`.
     template <kinematic::frame From, kinematic::frame To>
-    constexpr auto express() const -> std::enable_if_t<
+    [[nodiscard]] constexpr auto express() const -> std::enable_if_t<
+        // NOLINTNEXTLINE(misc-redundant-expression)
         tree::template contains_v<From> && tree::template contains_v<To>,
         orientation<From, To>>
     {
