@@ -60,6 +60,6 @@ pip_install(
 new_git_repository(
     name = "mcss",
     build_file = "@//:external/m.css.BUILD",
-    commit = "9385194fa3392a7162e7535cc2478814e382ff8a",
-    remote = "https://github.com/mosra/m.css/",
+    commit = "b6559265ce825c7cedc8a7e27770c8f11a938ba9",
+    remote = "https://github.com/oliverlee/m.css/",
 )
