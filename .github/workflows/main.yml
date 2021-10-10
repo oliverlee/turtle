@@ -71,20 +71,10 @@ jobs:
         restore-keys: |
           ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-${{ matrix.config }}-
 
-    - name: Setup Bazel
+    - name: Setup Bazel ${{ env.BAZEL_VERSION }}
       run: |
-        if [[ "${{ steps.cache-bazel-install.outputs.cache-hit }}" != "true" ]]; then
-          OS=linux
-          URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
-
-          wget -O install.sh "${URL}"
-          chmod +x install.sh
-          ./install.sh --user
-          rm -f install.sh
-        fi
-
-        sudo rm /usr/local/bin/bazel 
-        sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel 
+        .github/workflows/bazel.sh \
+          "${{ steps.cache-bazel-install.outputs.cache-hit }}" linux ${BAZEL_VERSION}
 
         cat .bazelrc.ci >> .bazelrc
         bazel --version
@@ -140,7 +130,7 @@ jobs:
           sudo ln -s $(which clang-tidy-${LLVM_VERSION}) /usr/bin/clang-tidy
           clang-tidy --version
 
-      - name: Set CC in CI bazelrc
+      - name: Set CC in bazelrc.ci
         run: |
           echo "build --repo_env='CC=$(which clang-${{ env.LLVM_VERSION }})'" >> .bazelrc.ci
           tail .bazelrc.ci
@@ -162,20 +152,10 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-bazel-${{ env.BAZEL_VERSION }}-clang-tidy-
 
-      - name: Setup Bazel
+      - name: Setup Bazel ${{ env.BAZEL_VERSION }}
         run: |
-          if [[ "${{ steps.cache-bazel-install.outputs.cache-hit }}" != 'true' ]]; then
-            OS=linux
-            URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
-
-            wget -O install.sh "${URL}"
-            chmod +x install.sh
-            ./install.sh --user
-            rm -f install.sh
-          fi
-
-          sudo rm /usr/local/bin/bazel 
-          sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel 
+          .github/workflows/bazel.sh \
+            "${{ steps.cache-bazel-install.outputs.cache-hit }}" linux ${BAZEL_VERSION}
 
           cat .bazelrc.ci >> .bazelrc
           bazel --version
@@ -231,20 +211,10 @@ jobs:
           sudo ln -s "${HOME}/doxygen-${DOXYGEN_VERSION}/bin/doxygen" /usr/local/bin/doxygen
           doxygen --version
 
-      - name: Setup Bazel
+      - name: Setup Bazel ${{ env.BAZEL_VERSION }}
         run: |
-          if [[ "${{ steps.cache-bazel-install.outputs.cache-hit }}" != 'true' ]]; then
-            OS=linux
-            URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
-
-            wget -O install.sh "${URL}"
-            chmod +x install.sh
-            ./install.sh --user
-            rm -f install.sh
-          fi
-
-          sudo rm /usr/local/bin/bazel
-          sudo ln -s ${HOME}/bin/bazel /usr/local/bin/bazel
+          .github/workflows/bazel.sh \
+            "${{ steps.cache-bazel-install.outputs.cache-hit }}" linux ${BAZEL_VERSION}
 
           cat .bazelrc.ci >> .bazelrc
           bazel --version
