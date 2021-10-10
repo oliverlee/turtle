@@ -11,6 +11,7 @@ exports_files(
 filegroup(
     name = "headers",
     srcs = [
+        "include/turtle/derivative.hpp",
         "include/turtle/frame.hpp",
         "include/turtle/fwd.hpp",
         "include/turtle/meta.hpp",

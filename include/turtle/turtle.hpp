@@ -5,6 +5,7 @@
 /// Defines types for working with kinematics in Cartesian coordinates.
 namespace turtle {}  // namespace turtle
 
+#include "derivative.hpp"
 #include "frame.hpp"
 #include "orientation.hpp"
 #include "point.hpp"
