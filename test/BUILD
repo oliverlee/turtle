@@ -60,6 +60,18 @@ cc_test(
 )
 
 cc_test(
+    name = "point",
+    size = "small",
+    srcs = ["point.cpp"],
+    copts = PROJECT_DEFAULT_COPTS,
+    deps = [
+        ":util",
+        "//:turtle",
+        "@ut",
+    ],
+)
+
+cc_test(
     name = "quaternion",
     size = "small",
     srcs = ["quaternion.cpp"],
