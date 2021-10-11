@@ -28,8 +28,8 @@ auto main() -> int
                          orientation<N, B>{-pi / 6., N::vector{0., 0., 1.}}};
     fmt::print("using world w:\n{}\n", w);
 
-    constexpr auto u = A::vector{1., 2., 3.};
-    fmt::print("vector {} in frame {} is {}\n", u, B{}, u.in<B>(w));
+    constexpr auto r1 = A::position{1., 2., 3.};
+    fmt::print("position {} in frame {} is {}\n", r1, B{}, r1.in<B>(w));
 
     using P = decltype(w)::point;
 
@@ -37,7 +37,7 @@ auto main() -> int
     fmt::print("\ncreating a point p at w's origin {}\n", p);
     fmt::print("expressing p in {}\n", p.position<B>(w));
 
-    constexpr auto q = P{A::vector{0., 2., 1.}};
+    constexpr auto q = P{A::position{0., 2., 1.}};
     fmt::print("\nand a point q {}\n", q);
     fmt::print("expressing in {}\n", q.position<B>(w));
 

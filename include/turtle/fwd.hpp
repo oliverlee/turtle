@@ -73,6 +73,40 @@ concept frame = is_frame_v<T>;
 
 }  // namespace kinematic
 
+template <class T, class D>
+class vector_interface;
+
+/// @name Type traits
+/// @{
+
+/// @brief Checks whether T implements a kinematic vector interface
+template <class T, class = void>
+struct is_vector_interface : std::false_type {};
+template <class T>
+struct is_vector_interface<
+    T,
+    std::enable_if_t<
+        std::is_base_of_v<vector_interface<typename T::scalar, T>, T>>>
+    : std::true_type {};
+
+/// @}
+
+/// @name Helper variable templates
+/// @{
+
+template <class T>
+inline constexpr bool is_vector_interface_v = is_vector_interface<T>::value;
+
+/// @}
+
+namespace kinematic {
+
+/// @brief Specifies that a type implements a kinematic vector interface
+template <class T>
+concept vector_interface = is_vector_interface_v<T>;
+
+}  // namespace kinematic
+
 template <kinematic::frame F, class T>
 struct vector;
 

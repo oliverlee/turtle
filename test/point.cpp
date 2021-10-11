@@ -30,21 +30,21 @@ auto main() -> int
     test("point at origin") = [&w, &reset_world] {
         constexpr auto p = P{};
 
-        expect(eq(N::vector{}, p.position<N>(reset_world)));
-        expect(eq(A::vector{}, p.position<A>(reset_world)));
+        expect(eq(N::position{}, p.position<N>(reset_world)));
+        expect(eq(A::position{}, p.position<A>(reset_world)));
 
-        expect(eq(N::vector{}, p.position<N>(w)));
-        expect(eq(A::vector{}, p.position<A>(w)));
+        expect(eq(N::position{}, p.position<N>(w)));
+        expect(eq(A::position{}, p.position<A>(w)));
     };
 
     test("point displaced from origin") = [&w, &reset_world] {
-        constexpr auto p = P{A::vector{1, 0, 0}};
+        constexpr auto p = P{A::position{1, 0, 0}};
 
-        expect(eq(N::vector{1, 0, 0}, p.position<N>(reset_world)));
-        expect(eq(A::vector{1, 0, 0}, p.position<A>(reset_world)));
+        expect(eq(N::position{1, 0, 0}, p.position<N>(reset_world)));
+        expect(eq(A::position{1, 0, 0}, p.position<A>(reset_world)));
 
-        expect(within<1e-15>(N::vector{0, 1, 0}, p.position<N>(w)));
-        expect(eq(A::vector{1, 0, 0}, p.position<A>(w)));
+        expect(within<1e-15>(N::position{0, 1, 0}, p.position<N>(w)));
+        expect(eq(A::position{1, 0, 0}, p.position<A>(w)));
     };
 
     test("point displaced from origin with multiple frames") = [] {
@@ -56,17 +56,17 @@ auto main() -> int
 
         using Point = decltype(w)::point;
 
-        constexpr auto p = Point{A::vector{1, 0, 0}};
+        constexpr auto p = Point{A::position{1, 0, 0}};
 
-        expect(eq(A::vector{1, 0, 0}, p.position<A>(w)));
-        expect(within<1e-15>(N::vector{0, 1, 0}, p.position<N>(w)));
-        expect(within<1e-15>(B::vector{-1, 0, 0}, p.position<B>(w)));
+        expect(eq(A::position{1, 0, 0}, p.position<A>(w)));
+        expect(within<1e-15>(N::position{0, 1, 0}, p.position<N>(w)));
+        expect(within<1e-15>(B::position{-1, 0, 0}, p.position<B>(w)));
     };
 
     test("point position settable") = [&w] {
         auto p = P{};
 
-        p.position(A::vector{1, 0, 1});
-        expect(eq(A::vector{1, 0, 1}, p.position<A>(w)));
+        p.position(A::position{1, 0, 1});
+        expect(eq(A::position{1, 0, 1}, p.position<A>(w)));
     };
 }

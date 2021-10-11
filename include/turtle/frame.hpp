@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fwd.hpp"
+#include "position.hpp"
 #include "vector.hpp"
 
 #include "fmt/format.h"
@@ -23,8 +24,11 @@ struct frame {
     /// @name Kinematic types
     /// @{
 
-    /// @brief Frame vector type
+    /// @brief Frame generic vector type
     using vector = turtle::vector<frame>;
+
+    /// @brief Frame position vector type
+    using position = turtle::position<frame>;
 
     /// @}
 

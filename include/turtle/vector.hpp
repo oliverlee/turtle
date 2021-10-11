@@ -33,35 +33,6 @@ struct vector : vector_interface<T, vector<F>> {
     /// @}
 
     using vector_interface<T, vector<F>>::vector_interface;
-
-    /// @name Frame expression operations
-    /// @{
-
-    /// @brief Express this vector in another frame
-    /// @tparam To Destination frame
-    /// @param ori Orientation of `To` relative the frame associated with this
-    /// vector
-    /// @return This vector expressed in frame `To`
-    template <kinematic::frame To>
-    [[nodiscard]] auto in(const orientation<F, To>& ori) const ->
-        typename To::vector
-    {
-        return ori.rotate(*this);
-    }
-
-    /// @brief Express this vector in another frame
-    /// @tparam To Destination frame
-    /// @tparam World Kinematic world
-    /// @param world World instance relating the frame associated with this
-    /// vector and `To`
-    /// @return This vector expressed in frame `To`
-    template <kinematic::frame To, kinematic::world World>
-    [[nodiscard]] auto in(const World& world) const -> typename To::vector
-    {
-        return world.template express<frame, To>().rotate(*this);
-    }
-
-    /// @}
 };
 
 }  // namespace turtle

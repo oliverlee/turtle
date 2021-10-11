@@ -16,6 +16,7 @@ filegroup(
         "include/turtle/meta.hpp",
         "include/turtle/orientation.hpp",
         "include/turtle/point.hpp",
+        "include/turtle/position.hpp",
         "include/turtle/quaternion.hpp",
         "include/turtle/turtle.hpp",
         "include/turtle/util/array.hpp",

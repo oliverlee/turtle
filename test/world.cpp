@@ -124,15 +124,15 @@ auto main() -> int
         };
 
         {
-            const auto v = N::vector{1., 0., 0.};
+            const auto v = N::position{1., 0., 0.};
             expect(eq(v, v.in<N>(w)));
-            expect(eq(A::vector{1., 0., 0.}, v.in<A>(w)));
+            expect(eq(A::position{1., 0., 0.}, v.in<A>(w)));
         }
 
         {
-            const auto v = N::vector{1., 1., 0.};
+            const auto v = N::position{1., 1., 0.};
             expect(eq(v, v.in<N>(w)));
-            expect(within<1e-12>(A::vector{1., 0., -1.}, v.in<A>(w)));
+            expect(within<1e-12>(A::position{1., 0., -1.}, v.in<A>(w)));
         }
     };
 
@@ -147,7 +147,7 @@ auto main() -> int
                              orientation<A, B>{angle, A::vector{1., 0., 0.}}};
 
         expect(within<1e-12>(
-            B::vector{0., -1., 0.}, N::vector{0., 1., 0.}.in<B>(w)));
+            B::position{0., -1., 0.}, N::position{0., 1., 0.}.in<B>(w)));
     };
 
     test("express vector in world with 2 branches") = [] {
@@ -161,6 +161,6 @@ auto main() -> int
                              orientation<N, B>{-angle, N::vector{1., 0., 0.}}};
 
         expect(within<1e-12>(
-            B::vector{0., -1., 0.}, A::vector{0., 1., 0.}.in<B>(w)));
+            B::position{0., -1., 0.}, A::position{0., 1., 0.}.in<B>(w)));
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fwd.hpp"
+#include "position.hpp"
 #include "world.hpp"
 
 #include "fmt/format.h"
@@ -15,9 +16,9 @@ namespace turtle {
 /// @note Unlike `vector`, a `point` is bound to a single world.
 template <kinematic::world World>
 class point {
-    using vector_variant =
+    using position_variant =
         metal::apply<metal::lambda<std::variant>,
-                     metal::transform<metal::lambda<vector>,
+                     metal::transform<metal::lambda<turtle::position>,
                                       meta::flatten<typename World::tree>>>;
 
     template <kinematic::frame F>
@@ -37,31 +38,34 @@ class point {
     constexpr point() = default;
 
     /// @brief Constructs a point with a displacement from the world origin
-    /// @tparam V A world vector type
-    /// @param v Displacement from the origin expressed in `V::frame`
+    /// @tparam F Reference frame
+    /// @param r Displacement from the origin expressed in `F`
     ///
-    /// Sets the position of this point in the world, expressed in `V::frame`.
-    /// This position is fixed in `V::frame` which may not be the same as the
+    /// Sets the position of this point in the world, expressed in `F`.
+    /// This position is fixed in `F` which may not be the same as the
     /// `world::root`.
-    template <kinematic::vector V>
-    requires in_world_v<typename V::frame>
-    explicit constexpr point(V v)
-        : displacement_{std::in_place_type<V>, std::move(v)}
+    template <kinematic::frame F>
+    requires in_world_v<F>
+    explicit constexpr point(turtle::position<F> r)
+        : displacement_{std::in_place_type<turtle::position<F>>, std::move(r)}
     {}
 
     /// @brief Sets the point's position
-    /// @tparam V A world vector type
-    /// @param v Displacement from the origin expressed in `V::frame`
+    /// @tparam F Reference frame
+    /// @param r Displacement from the origin expressed in `F`
     ///
-    /// Sets the position of this point in the world, expressed in `V::frame`.
-    /// This position is fixed in `V::frame` which may not be the same as the
+    /// Sets the position of this point in the world, expressed in `F`.
+    /// This position is fixed in `F` which may not be the same as the
     /// `world::root`.
-    template <kinematic::vector V>
-    requires in_world_v<typename V::frame>
-    constexpr auto position(V v) -> void { displacement_ = v; }
+    template <kinematic::frame F>
+    requires in_world_v<F>
+    constexpr auto position(turtle::position<F> r) -> void
+    {
+        displacement_ = std::move(r);
+    }
 
     /// @brief Obtains the point's set position
-    [[nodiscard]] constexpr auto position() const& -> const vector_variant&
+    [[nodiscard]] constexpr auto position() const& -> const position_variant&
     {
         return displacement_;
     }
@@ -71,15 +75,16 @@ class point {
     /// @param w A world instance
     template <kinematic::frame F>
     requires in_world_v<F>
-    [[nodiscard]] constexpr auto position(const world& w) const -> vector<F>
+    [[nodiscard]] constexpr auto position(const world& w) const
+        -> turtle::position<F>
     {
         return std::visit(
-            [&w](const auto& v) { return v.template in<F>(w); }, position());
+            [&w](const auto& r) { return r.template in<F>(w); }, position());
     }
 
   private:
     /// Displacement from world origin
-    vector_variant displacement_{};
+    position_variant displacement_{};
 };
 
 }  // namespace turtle
@@ -92,8 +97,8 @@ struct fmt::formatter<turtle::point<World>>
     {
         // TODO: short form printing for world
         return std::visit(
-            [out = ctx.out()](const auto& v) {
-                return format_to(out, "point at {}", v);
+            [out = ctx.out()](const auto& r) {
+                return format_to(out, "point at {}", r);
             },
             p.position());
     }

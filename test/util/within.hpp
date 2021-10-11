@@ -43,7 +43,7 @@ auto within(const T& v, const T& u)
 }
 
 // clang-format off
-template <AUTO Tol, turtle::kinematic::vector V>
+template <AUTO Tol, turtle::kinematic::vector_interface V>
 requires std::same_as <tolerance_type_t<decltype(Tol)>, typename V::scalar>
 auto within(const V& v, const V& u)
 {
