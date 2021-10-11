@@ -13,18 +13,18 @@
 namespace turtle {
 
 /// @brief A position vector
-/// @tparam F Expression frame
-template <kinematic::frame F>
-struct position : vector_interface<typename F::scalar, position<F>> {
+/// @tparam E Expression frame
+template <kinematic::frame E>
+struct position : vector_interface<typename E::scalar, position<E>> {
     /// @brief Expression frame
-    using frame = F;
+    using frame = E;
 
-    using vector_interface<typename F::scalar, position<F>>::vector_interface;
+    using vector_interface<typename E::scalar, position<E>>::vector_interface;
 
     /// @brief Construct a position vector from a frame vector
     /// @param v Frame vector
-    constexpr position(typename F::vector v)
-        : vector_interface<typename F::scalar, position<F>>{
+    constexpr position(typename E::vector v)
+        : vector_interface<typename E::scalar, position<E>>{
               std::move(v.x()), std::move(v.y()), std::move(v.z())}
     {}
 
@@ -37,10 +37,10 @@ struct position : vector_interface<typename F::scalar, position<F>> {
     /// position
     /// @return This position expressed in frame `To`
     template <kinematic::frame To>
-    [[nodiscard]] auto in(const orientation<F, To>& ori) const ->
+    [[nodiscard]] auto in(const orientation<E, To>& ori) const ->
         typename To::position
     {
-        return ori.rotate(std::bit_cast<typename F::vector>(*this));
+        return ori.rotate(std::bit_cast<typename E::vector>(*this));
     }
 
     /// @brief Express this position in another frame
@@ -52,8 +52,8 @@ struct position : vector_interface<typename F::scalar, position<F>> {
     template <kinematic::frame To, kinematic::world World>
     [[nodiscard]] auto in(const World& world) const -> typename To::position
     {
-        return world.template express<F, To>().rotate(
-            std::bit_cast<typename F::vector>(*this));
+        return world.template express<E, To>().rotate(
+            std::bit_cast<typename E::vector>(*this));
     }
 
     /// @}
@@ -71,19 +71,19 @@ position(V) -> position<typename V::frame>;
 
 namespace fmt {
 
-template <class F, class Char>
-struct is_range<turtle::position<F>, Char> : std::false_type {};
+template <class E, class Char>
+struct is_range<turtle::position<E>, Char> : std::false_type {};
 
-template <class F>
-struct formatter<turtle::position<F>> : formatter<turtle::vector<F>> {
+template <class E>
+struct formatter<turtle::position<E>> : formatter<turtle::vector<E>> {
     template <class FormatContext>
-    auto format(const turtle::position<F>& r, FormatContext& ctx)
+    auto format(const turtle::position<E>& r, FormatContext& ctx)
     {
         auto&& out = ctx.out();
 
         format_to(out, "<p>: ");
-        formatter<turtle::vector<F>>::format(
-            std::bit_cast<turtle::vector<F>>(r), ctx);
+        formatter<turtle::vector<E>>::format(
+            std::bit_cast<turtle::vector<E>>(r), ctx);
 
         return out;
     }

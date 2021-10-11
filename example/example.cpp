@@ -11,16 +11,7 @@ auto main() -> int
     using turtle::orientation;
     using turtle::world;
 
-    fmt::print("hello! - 🐢 \n");
-
     using N = frame<"N">;
-
-    constexpr auto n = N{};
-    fmt::print("frame: {}\n", n);
-
-    constexpr auto v = 1 * n.x + 2 * n.y + 3 * n.z;
-    fmt::print("v: {:.2f}\n", v);
-
     using A = frame<"A">;
     using B = frame<"B">;
 
@@ -40,6 +31,12 @@ auto main() -> int
     constexpr auto q = P{A::position{0., 2., 1.}};
     fmt::print("\nand a point q {}\n", q);
     fmt::print("expressing in {}\n", q.position<B>(w));
+
+    constexpr auto v1 = N::velocity{3, 0, 0};
+    fmt::print("v1: {:.2f}\n", v1);
+
+    constexpr auto v2 = turtle::velocity<B, A>{3, 0, 0};
+    fmt::print("v2: {:.2f}\n", v2);
 
     return 0;
 }

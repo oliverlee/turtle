@@ -25,6 +25,7 @@ filegroup(
         "include/turtle/vector.hpp",
         "include/turtle/vector_interface.hpp",
         "include/turtle/vector_ops.hpp",
+        "include/turtle/velocity.hpp",
         "include/turtle/world.hpp",
     ],
     visibility = ["@mcss//:__pkg__"],

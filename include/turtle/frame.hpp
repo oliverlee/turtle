@@ -3,6 +3,7 @@
 #include "fwd.hpp"
 #include "position.hpp"
 #include "vector.hpp"
+#include "velocity.hpp"
 
 #include "fmt/format.h"
 
@@ -29,6 +30,9 @@ struct frame {
 
     /// @brief Frame position vector type
     using position = turtle::position<frame>;
+
+    /// @brief Frame velocity vector type
+    using velocity = turtle::velocity<frame, frame>;
 
     /// @}
 
