@@ -22,6 +22,7 @@ filegroup(
         "include/turtle/util/ulp_diff.hpp",
         "include/turtle/util/zip_transform_iterator.hpp",
         "include/turtle/vector.hpp",
+        "include/turtle/vector_interface.hpp",
         "include/turtle/vector_ops.hpp",
         "include/turtle/world.hpp",
     ],

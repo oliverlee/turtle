@@ -74,7 +74,7 @@ concept frame = is_frame_v<T>;
 }  // namespace kinematic
 
 template <kinematic::frame F, class T>
-class vector;
+struct vector;
 
 /// @name Type traits
 /// @{
