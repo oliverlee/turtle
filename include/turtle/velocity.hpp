@@ -38,6 +38,36 @@ struct velocity : vector_interface<typename B::scalar, velocity<B, E>> {
         : vector_interface<typename B::scalar, velocity<B, E>>{
               std::move(v.x()), std::move(v.y()), std::move(v.z())}
     {}
+
+    /// @name Frame expression operations
+    /// @{
+
+    /// @brief Express this velocity in another frame
+    /// @tparam E2 Target expression frame
+    /// @param ori Orientation of `E2` relative the frame associated with this
+    /// velocity
+    /// @return This velocity expressed in frame `E2`
+    template <kinematic::frame E2>
+    [[nodiscard]] auto express_in(const orientation<E, E2>& ori) const
+        -> velocity<B, E2>
+    {
+        return ori.rotate(std::bit_cast<typename E::vector>(*this));
+    }
+
+    /// @brief Express this position in another frame
+    /// @tparam E2 Target expression frame
+    /// @tparam World Kinematic world
+    /// @param world World instance relating the frame associated with the
+    /// current expression frame and `E2`
+    /// @return This velocity expressed in frame `E2`
+    template <kinematic::frame E2, kinematic::world World>
+    [[nodiscard]] auto express_in(const World& world) const -> velocity<B, E2>
+    {
+        return world.template express<E, E2>().rotate(
+            std::bit_cast<typename E::vector>(*this));
+    }
+
+    /// @}
 };
 
 /// @name Deduction guides
