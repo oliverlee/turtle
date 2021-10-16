@@ -28,7 +28,7 @@ auto main() -> int
     fmt::print("\ncreating a point p at w's origin {}\n", p);
     fmt::print("expressing p in {}\n", p.position<B>(w));
 
-    constexpr auto q = P{A::position{0., 2., 1.}};
+    auto q = P{A::position{0., 2., 1.}};
     fmt::print("\nand a point q {}\n", q);
     fmt::print("expressing in {}\n", q.position<B>(w));
 
@@ -37,6 +37,8 @@ auto main() -> int
 
     constexpr auto v2 = turtle::velocity<B, A>{3, 0, 0};
     fmt::print("v2: {:.2f}\n", v2);
+
+    q.velocity(v2);
 
     return 0;
 }
