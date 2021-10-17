@@ -30,9 +30,12 @@ jobs:
           sudo .github/workflows/llvm.sh ${LLVM_VERSION}
 
           sudo apt-get install -y \
-            clang-${LLVM_VERSION} \
+            clang-${LLVM_VERSION} lld-${LLVM_VERSION} \
             libc++1-${LLVM_VERSION} libc++abi1-${LLVM_VERSION} \
             libc++-${LLVM_VERSION}-dev libc++abi-${LLVM_VERSION}-dev
+
+          echo "build --linkopt=-L/usr/lib/llvm-${LLVM_VERSION}/lib" >> .bazelrc.ci
+          echo "build --linkopt=-Wl,-rpath,/usr/lib/llvm-${LLVM_VERSION}/lib" >> .bazelrc.ci
 
           echo "compiler=$(which clang-${LLVM_VERSION})" >> $GITHUB_ENV
         else

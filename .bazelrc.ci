@@ -14,6 +14,10 @@ build:gcc    --announce_rc
 # https://github.com/bazelbuild/bazel/issues/13071#issue-812484249
 build:clang --repo_env='BAZEL_CXXOPTS=-stdlib=libc++'
 build:clang --repo_env='BAZEL_LINKLIBS=-lc++:-lm'
+# https://github.com/bazelbuild/bazel/issues/11525#issuecomment-641921447
+# https://stackoverflow.com/questions/65675412/bazel-build-cannot-find-shared-library
+build:clang --repo_env='BAZEL_LINKOPTS=-fuse-ld=lld:-L/usr/bin'
+
 
 test --test_output=all
 test --test_verbose_timeout_warnings
