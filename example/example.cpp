@@ -28,8 +28,7 @@ auto main() -> int
         };
 
     using P = decltype(make_world())::point;
-    auto dmc = P{L::position{0, 0, 1}};
-    dmc.velocity(R::velocity{});
+    constexpr auto dmc = P{L::position{0, 0, 1}, R::velocity{}};
 
     {
         const auto w = make_world(0.1, 0.2, 0.3, 2, 3, 4);

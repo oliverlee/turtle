@@ -45,15 +45,23 @@ class point {
 
     /// @brief Constructs a point with a displacement from the world origin
     /// @tparam F Reference frame
+    /// @tparam B Velocity observation frame
+    /// @tparam B Velocity expression frame
     /// @param r Displacement from the origin expressed in `F`
+    /// @param v Velocity observed in `B` and expressed in `E`
     ///
-    /// Sets the position of this point in the world, expressed in `F`.
+    /// Sets the position of this point in the world, expressed in `F` and the
+    /// velocity of this point, observed in `B` and expressed in `E`.
     /// This position is fixed in `F` which may not be the same as the
     /// `world::root`.
-    template <kinematic::frame F>
+    template <kinematic::frame F,
+              kinematic::frame B = typename World::root,
+              kinematic::frame E = B>
     requires in_world_v<F>
-    explicit constexpr point(turtle::position<F> r)
-        : displacement_{std::in_place_type<turtle::position<F>>, std::move(r)}
+    explicit constexpr point(turtle::position<F> r,
+                             turtle::velocity<B, E> v = {})
+        : displacement_{std::in_place_type<turtle::position<F>>, std::move(r)},
+          velocity_{std::in_place_type<turtle::velocity<B, E>>, std::move(v)}
     {}
 
     /// @brief Sets the point's position
