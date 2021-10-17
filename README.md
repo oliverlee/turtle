@@ -6,35 +6,43 @@ A reference frame library
 A library for kinematics calculations that does all the book keeping for you.
 Think
 [sympy.physics.vector](https://docs.sympy.org/latest/modules/physics/vector/index.html)
-but in C++ and strongly typed. And for those coming from Python -
-[fmt](https://fmt.dev/latest/index.html) is used for formatting.
+but in C++ and strongly typed. 
+Here's how you could calculate the velocity of
+[disc](https://docs.sympy.org/latest/modules/physics/mechanics/examples/rollingdisc_example_kane.html)
 
 ~~~cpp
 #include "turtle/turtle.hpp"
 #include "fmt/core.h"
-#include <numbers>
 
 auto main() -> int
 {
-    using std::numbers::pi;
     using turtle::frame;
     using turtle::orientation;
     using turtle::world;
 
-    using N = frame<"N">;
-    using A = frame<"A">;
-    using B = frame<"B">;
+    using N = frame<"Inertial">;
+    using Y = frame<"Yaw">;
+    using L = frame<"Lean">;
+    using R = frame<"Roll">;
+    
+    constexpr auto q1 = 0.1;
+    constexpr auto q2 = 0.2;
+    constexpr auto q3 = 0.3;
+
+    constexpr auto u1 = 2.;
+    constexpr auto u2 = 3.;
+    constexpr auto u3 = 4.;
 
     const auto w = world{
-        orientation<N, A>{pi / 2., N::vector{1., 0., 0.}},
-        orientation<N, B>{-pi / 6., N::vector{0., 0., 1.}}
+        orientation<N, Y>{q1, N::z},
+        orientation<Y, L>{q2, Y::x},
+        orientation<L, R>{q3, L::y}.with(L::velocity{u1, u2, u3}),
     };
     fmt::print("using world w:\n{}\n", w);
 
-    constexpr auto u = A::vector{1., 2., 3.};
-    fmt::print("{} can also be expressed as {}\n",
-        u, u.in<B>(w)
-    );
+    using P = decltype(w)::point;
+    constexpr auto dmc = P{L::position{0, 0, 1}, R::velocity{}};
+    fmt::print("vel of disc mass center: {:.2f}\n", dmc.velocity<N, L>(w));
 }
 ~~~
 

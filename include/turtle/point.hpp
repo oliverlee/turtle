@@ -45,15 +45,23 @@ class point {
 
     /// @brief Constructs a point with a displacement from the world origin
     /// @tparam F Reference frame
+    /// @tparam B Velocity observation frame
+    /// @tparam B Velocity expression frame
     /// @param r Displacement from the origin expressed in `F`
+    /// @param v Velocity observed in `B` and expressed in `E`
     ///
-    /// Sets the position of this point in the world, expressed in `F`.
+    /// Sets the position of this point in the world, expressed in `F` and the
+    /// velocity of this point, observed in `B` and expressed in `E`.
     /// This position is fixed in `F` which may not be the same as the
     /// `world::root`.
-    template <kinematic::frame F>
+    template <kinematic::frame F,
+              kinematic::frame B = typename World::root,
+              kinematic::frame E = B>
     requires in_world_v<F>
-    explicit constexpr point(turtle::position<F> r)
-        : displacement_{std::in_place_type<turtle::position<F>>, std::move(r)}
+    explicit constexpr point(turtle::position<F> r,
+                             turtle::velocity<B, E> v = {})
+        : displacement_{std::in_place_type<turtle::position<F>>, std::move(r)},
+          velocity_{std::in_place_type<turtle::velocity<B, E>>, std::move(v)}
     {}
 
     /// @brief Sets the point's position
@@ -100,26 +108,31 @@ class point {
         return velocity_;
     }
 
-    template <kinematic::frame A>
-    requires in_world_v<A>
+    template <kinematic::frame A, kinematic::frame F = A>
+    requires in_world_v<A> && in_world_v<F>
     [[nodiscard]] constexpr auto velocity(const world& w) const
-        -> turtle::velocity<A>
+        -> turtle::velocity<A, F>
     {
+        // TODO update interfaces to remove need to bit cast so much
+
         const auto v_A_B_bar = std::visit(
-            [&w](const auto& v) { return v.template express_in<A>(w); },
+            [&w](const auto& v) {
+                return std::bit_cast<turtle::velocity<A>>(
+                    v.template express_in<A>(w));
+            },
             velocity_);
 
         const auto w_A_B = std::visit(
             [&w]<class B, class E>(const turtle::velocity<B, E>&) {
-                // FIXME get angular velocity instead of rotation - the code
-                // below just something that should compile
-                //
-                // return w.template angular_velocity<A, B>();
-                return w.template express<A, B>().axis();
+                return w.template express<A, B>().angular_velocity();
             },
             velocity_);
 
-        return {(v_A_B_bar + cross_product(w_A_B, position<A>(w)))};
+        return (v_A_B_bar +
+                std::bit_cast<turtle::velocity<A>>(cross_product(
+                    std::bit_cast<typename A::vector>(w_A_B),
+                    std::bit_cast<typename A::vector>(position<A>(w)))))
+            .template express_in<F>(w);
     }
 
   private:
