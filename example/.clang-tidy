@@ -3,3 +3,5 @@ Checks: >
     # propgate errors to the top,
     -bugprone-exception-escape,
 
+    -readability-magic-numbers,
+
