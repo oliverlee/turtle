@@ -3,6 +3,7 @@
 #include "fwd.hpp"
 #include "quaternion.hpp"
 #include "vector_ops.hpp"
+#include "velocity.hpp"
 
 #include "fmt/format.h"
 
@@ -82,11 +83,34 @@ class orientation {
         return rotation_;
     }
 
+    /// @brief Sets the angular velocity of frame `To` with respect to frame
+    /// `From`
+    /// @note Requires expression in frame `From`
+    /// @{
+    constexpr auto with(velocity<From> v) & -> orientation&
+    {
+        ang_vel_ = std::move(v);
+        return *this;
+    }
+    constexpr auto with(velocity<From> v) && -> orientation&&
+    {
+        return std::move(with(std::move(v)));
+    }
+    /// @}
+
+    [[nodiscard]] constexpr auto angular_velocity() const& noexcept
+        -> const velocity<From>&
+    {
+        return ang_vel_;
+    }
+
     /// @brief Calculates the inverse orientation starting at `To` and ending at
     /// `From`
     [[nodiscard]] constexpr auto inverse() const -> orientation<To, From>
     {
-        return orientation<To, From>{rotation_.conjugate()};
+        return orientation<To, From>{rotation_.conjugate()}.with(
+            -std::bit_cast<velocity<To>>(
+                angular_velocity().template express_in<To>(*this)));
     }
 
     /// @brief Applies the rotation and converts a vector from `From` to `To`
@@ -107,7 +131,12 @@ class orientation {
     operator*(const orientation& ori1, const orientation<To, C>& ori2)
         -> orientation<From, C>
     {
-        return orientation<From, C>{ori1.rotation() * ori2.rotation()};
+        return orientation<From, C>{ori1.rotation() * ori2.rotation()}.with(
+            // TODO split out angular velocity and allow w_A_B + w_B_C = w_A_C
+            ori1.angular_velocity() +
+            std::bit_cast<velocity<From>>(
+                ori2.angular_velocity().template express_in<From>(
+                    ori1.inverse())));
     }
 
     [[nodiscard]] constexpr auto vector_part() const -> typename From::vector
@@ -116,6 +145,7 @@ class orientation {
     }
 
     quaternion rotation_{scalar{1}, scalar{}, scalar{}, scalar{}};
+    velocity<From> ang_vel_{};
 };
 
 }  // namespace turtle
