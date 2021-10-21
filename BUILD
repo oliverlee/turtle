@@ -19,7 +19,6 @@ filegroup(
         "include/turtle/position.hpp",
         "include/turtle/quaternion.hpp",
         "include/turtle/turtle.hpp",
-        "include/turtle/util/array.hpp",
         "include/turtle/util/ulp_diff.hpp",
         "include/turtle/util/zip_transform_iterator.hpp",
         "include/turtle/vector.hpp",

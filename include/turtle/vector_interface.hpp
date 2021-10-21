@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fwd.hpp"
-#include "util/array.hpp"
 #include "util/zip_transform_iterator.hpp"
 
 #include <algorithm>
@@ -46,10 +45,10 @@ class vector_interface {
     static constexpr auto dimension = 3;
     using data_type = std::array<T, dimension>;
 
-    template <class Iterable>
-    static constexpr auto make_derived(Iterable it) -> D
+    template <class Iter>
+    static constexpr auto make_derived(Iter it) -> D
     {
-        return util::make_arraylike<D, dimension>(it);
+        return D{*it, *(++it), *(++it)};
     }
 
     data_type data_{};
@@ -136,7 +135,7 @@ class vector_interface {
     static constexpr auto
     apply_elementwise(const vector_interface& v, UnaryOp uop) -> D
     {
-        return make_derived(v | std::views::transform(std::move(uop)));
+        return make_derived(std::views::transform(v, std::move(uop)).begin());
     }
     template <class BinOp>
     static constexpr auto apply_elementwise(

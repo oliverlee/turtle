@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fwd.hpp"
-#include "util/array.hpp"
 #include "util/zip_transform_iterator.hpp"
 #include "vector_interface.hpp"
 
