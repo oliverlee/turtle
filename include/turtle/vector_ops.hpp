@@ -25,8 +25,11 @@ constexpr auto dot_product(const V& v, const V& u) -> typename V::scalar
 template <kinematic::vector V>
 constexpr auto cross_product(const V& v, const V& u) -> V
 {
-    const auto qx = quaternion{v} * quaternion{u};
-    return {qx.x(), qx.y(), qx.z()};
+    return {
+        v.y() * u.z() - v.z() * u.y(),
+        v.z() * u.x() - v.x() * u.z(),
+        v.x() * u.y() - v.y() * u.x(),
+    };
 }
 
 /// @brief Calculates the vector norm
